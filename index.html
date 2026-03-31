@@ -42,7 +42,6 @@
   }
   .section-card h2.blue { color: #1a73e8; }
   .section-card h2.orange { color: #e67e22; }
-  .section-card h2.purple { color: #7b1fa2; }
 
   .field { margin-bottom: 12px; }
   .field:last-child { margin-bottom: 0; }
@@ -52,12 +51,6 @@
     font-weight: 600;
     color: #555;
     margin-bottom: 6px;
-  }
-  .field .hint {
-    font-size: 11px;
-    color: #999;
-    font-weight: 400;
-    margin-left: 4px;
   }
   .field select {
     width: 100%;
@@ -96,12 +89,12 @@
   }
   .step.active { background: #1a73e8; color: #fff; }
   .step.done { background: #4caf50; color: #fff; }
-  .step-line { width: 16px; height: 2px; background: #e0e0e0; transition: background .3s; }
+  .step-line { width: 20px; height: 2px; background: #e0e0e0; transition: background .3s;
+  }
   .step-line.done { background: #4caf50; }
 
   /* Button grid */
   .btn-grid { display: grid; gap: 10px; }
-  .btn-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
   .btn-grid.cols-2 { grid-template-columns: 1fr 1fr; }
   .pick-btn {
     position: relative;
@@ -127,9 +120,6 @@
   }
   .pick-btn.ship-btn.selected .btn-label { color: #e67e22; }
   .pick-btn.ship-btn.selected .btn-sub { color: #e67e22; }
-  .pick-btn.disabled {
-    opacity: 0.35; cursor: not-allowed; pointer-events: none;
-  }
 
   /* Result */
   .result-section {
@@ -140,7 +130,7 @@
     box-shadow: 0 1px 4px rgba(0,0,0,.08);
     animation: fadeIn .3s ease;
   }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @geyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
   .result-title {
     padding: 12px 16px; font-size: 14px; font-weight: 600;
@@ -148,6 +138,7 @@
   }
   .result-title.tax { background: #1a73e8; }
   .result-title.notax { background: #e67e22; }
+  .result-title.twd { background: #2e7d32; }
   .result-body { padding: 16px; }
   .product-info {
     margin-bottom: 12px; padding-bottom: 12px;
@@ -166,26 +157,16 @@
   .price-row.total .value { font-size: 22px; font-weight: 700; color: #e65100; }
   .price-row.shipping .value { color: #e67e22; font-weight: 600; }
   .note-badge {
-    display: inline-block; background: #e3f2fd; color: #1565c0;
+    display: innline-block; background: #e3f2fd; color: #1565c0;
     font-size: 12px; padding: 3px 8px; border-radius: 4px; margin-top: 8px;
   }
-  .no-result {
-    text-align: center; padding: 40px 16px; color: #bbb; font-size: 14px;
-  }
-  .no-result .icon { font-size: 40px; margin-bottom: 8px; }
-  .reset-btn {
-    display: block; width: 100%; padding: 12px;
-    background: #f5f5f5; border: 1.5px solid #ddd; border-radius: 8px;
-    font-size: 14px; color: #666; cursor: pointer; margin-bottom: 24px;
-    transition: background .2s;
-  }
-  .reset-btn:active { background: #e8e8e8; }
   .tag {
     display: inline-block; font-size: 11px; padding: 2px 6px;
     border-radius: 4px; font-weight: 600;
   }
   .tag.tax { background: #e3f2fd; color: #1565c0; }
   .tag.notax { background: #fff3e0; color: #e65100; }
+  .tag.twd { background: #e8f5e9; color: #2e7d32; }
 
   #resultArea { display: none; }
   #resultArea.visible { display: block; }
@@ -218,13 +199,19 @@
     border: none; border-radius: 6px; font-size: 14px; cursor: pointer;
   }
 
-  /* Data freshness indicator */
   .data-info {
     text-align: center; font-size: 11px; color: #aaa; margin-bottom: 16px;
   }
   .data-info .refresh-link {
     color: #1a73e8; cursor: pointer; text-decoration: underline;
   }
+  .reset-btn {
+    display: block; width: 100%; padding: 12px;
+    background: #f5f5f5; border: 1.5px solid #ddd; border-radius: 8px;
+    font-size: 14px; color: #666; cursor: pointer; margin-bottom: 24px;
+    transition: background .2s;
+  }
+  .reset-btn:active { background: #e8e8e8; }
 </style>
 </head>
 <body>
@@ -237,7 +224,7 @@
 
 <div class="header">
   <h1>燙金膜成本查詢系統</h1>
-  <div class="subtitle">供應商 → 型號 → 描述 → 顏色 → 運費</div>
+  <div class="subtitle">供應商 → 型號 → 描述 → 運費</div>
 </div>
 
 <div class="container">
@@ -250,8 +237,7 @@
     <div class="step-indicator">
       <div class="step" id="s1">1</div><div class="step-line" id="sl1"></div>
       <div class="step" id="s2">2</div><div class="step-line" id="sl2"></div>
-      <div class="step" id="s3">3</div><div class="step-line" id="sl3"></div>
-      <div class="step" id="s4">4</div>
+      <div class="step" id="s3">3</div>
     </div>
     <div class="field">
       <label>① 供應商</label>
@@ -264,15 +250,6 @@
     <div class="field">
       <label>③ 產品描述</label>
       <select id="descFilter" disabled><option value="">— 請先選擇型號 —</option></select>
-    </div>
-  </div>
-
-  <!-- 顏色分類 -->
-  <div class="section-card">
-    <h2 class="purple">🎨 顏色分類</h2>
-    <div class="field">
-      <label>④ 顏色分類</label>
-      <select id="colorFilter" disabled><option value="">— 請先選擇描述 —</option></select>
     </div>
   </div>
 
@@ -291,18 +268,13 @@
 <script>
 // ============================================================
 //  Google Sheets 設定
-//  只需要修改這裡的 SHEET_ID 即可
 // ============================================================
 const SHEET_ID = '1TDW4-vHfpOG5ori-3hCWeWJUHlVVHjUZ8H-GCli822Q';
-
-// 產品資料 CSV 匯出網址（使用 gid=0 確保正確誊取第一個工作表）
 const PRODUCTS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
 
 // ===== 全域資料 =====
 let PRODUCTS = [];
-// 運費設定（直接寫入，因 Google Sheets 中文工作表名稱參數不穩定）
 const SHIPPING_RATES = {"報關": 15, "海運": 30, "快海": 60, "空運": 250};
-const COLOR_OPTIONS = ["金銀色", "雜色", "雷射", "透明雷射", "其他"];
 const SHIP_OPTIONS = [
   { name: "快海", icon: "⚡" },
   { name: "海運", icon: "🚢" },
@@ -345,54 +317,49 @@ function parseCSV(text) {
       }
     }
   }
-  // last row
   row.push(current.trim());
   if (row.some(c => c !== '')) rows.push(row);
-
   return rows;
 }
 
 // ===== 從 Google Sheets 載入資料 =====
+// 新的 Google Sheet 欄位（無顏色分類）：
+// 0:供應商代碼 1:供應商名稱 2:產品型號 3:產品描述
+// 4:幣別 5:價格類型 6:單價(輸入) 7:未含稅單價 8:台幣基礎成本 9:備註
 async function loadData() {
   const overlay = document.getElementById('loadingOverlay');
   try {
-    // 抓取產品資料（運費已直接寫入程式）
     const prodResp = await fetch(PRODUCTS_CSV_URL);
     if (!prodResp.ok) throw new Error('無法讀取產品資料');
     const prodText = await prodResp.text();
-
-    // 解析產品資料
     const prodRows = parseCSV(prodText);
     if (prodRows.length < 2) throw new Error('產品資料表是空的');
 
-    // 第一行是表頭，跳過
-    // 欄位順序：供應商代碼, 供應商名稱, 產品型號, 產品描述, 顏色分類, 幣別, 價格類型, 含稅單價, 未含稅單價, 台幣基礎成本, 備註
     PRODUCTS = [];
     for (let i = 1; i < prodRows.length; i++) {
       const r = prodRows[i];
-      if (!r[0] && !r[2]) continue; // 跳過空行
+      if (!r[0] && !r[2]) continue;
 
-      const priceType = (r[6] || '').trim();
-      const unitPrice = parseFloat(r[7]) || 0;
-      const unitPriceAlt = r[8] !== '' && r[8] !== undefined ? parseFloat(r[4]) : null;
-      const baseTWD = parseInt(r[9]) || 0;
+      const currency = (r[4] || '').trim();
+      const priceType = (r[5] || '').trim();
+      const unitPrice = parseFloat(r[6]) || 0;
+      const unitPriceNoTax = r[7] !== '' && r[7] !== undefined && r[7] !== '—' ? parseFloat(r[7]) : null;
+      const baseTWD = parseInt(r[8]) || 0;
 
       PRODUCTS.push({
         vendorCode: (r[0] || '').trim(),
         vendorName: (r[1] || '').trim(),
         model: (r[2] || '').trim(),
         desc: (r[3] || '').trim(),
-        colorCategory: (r[4] || '').trim(),
-        currency: (r[5] || '').trim(),
+        currency: currency,
         priceType: priceType,
         unitPrice: unitPrice,
-        unitPriceAlt: unitPriceAlt,
+        unitPriceNoTax: unitPriceNoTax,
         baseTWD: baseTWD,
-        note: (r[10] || '').trim()
+        note: (r[9] || '').trim()
       });
     }
 
-    // 資料載入成功
     const now = new Date();
     const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
     document.getElementById('dataInfo').innerHTML =
@@ -407,14 +374,13 @@ async function loadData() {
         <div style="font-size:32px; margin-bottom:12px;">⚠️</div>
         <div><b>資料載入失敗</b></div>
         <div style="margin-top:8px; font-size:13px; color:#999;">${err.message}</div>
-        <div style="margin-top:8px; font-size:12px; color:#aaa;">請確認 Google 試篗表已設為「發布到網路」</div>
+        <div style="margin-top:8px; font-size:12px; color:#aaa;">請確認 Google 試算表已設為公開檢視</div>
         <button onclick="location.reload()">重試</button>
       </div>`;
   }
 }
 
 // ===== State =====
-let selectedColor = "";
 let selectedShipping = "";
 let selectedShippingCost = 0;
 
@@ -422,12 +388,10 @@ let selectedShippingCost = 0;
 const vendorFilter = document.getElementById('vendorFilter');
 const modelFilter = document.getElementById('modelFilter');
 const descFilter = document.getElementById('descFilter');
-const colorFilter = document.getElementById('colorFilter');
 const shippingGrid = document.getElementById('shippingGrid');
 const resultArea = document.getElementById('resultArea');
 
 function init() {
-  // Vendor dropdown
   const vendors = [...new Map(
     PRODUCTS.filter(p => p.vendorName).map(p => [p.vendorName, p.vendorCode])
   ).entries()].sort((a,b) => a[1].localeCompare(b[1]));
@@ -438,7 +402,6 @@ function init() {
     vendorFilter.appendChild(opt);
   });
 
-  // Shipping buttons
   SHIP_OPTIONS.forEach(s => {
     const cost = SHIPPING_RATES[s.name] || 0;
     const btn = document.createElement('div');
@@ -452,7 +415,6 @@ function init() {
   vendorFilter.addEventListener('change', onVendorChange);
   modelFilter.addEventListener('change', onModelChange);
   descFilter.addEventListener('change', onDescChange);
-  colorFilter.addEventListener('change', onColorChange);
 
   updateSteps(0);
 }
@@ -498,32 +460,9 @@ function onModelChange() {
 }
 
 function onDescChange() {
-  selectedColor = "";
-  colorFilter.innerHTML = '<option value="">— 請先選擇描述 —</option>';
-  colorFilter.disabled = true;
   hideResult();
-
   if (!descFilter.value) { updateSteps(2); return; }
-
-  colorFilter.innerHTML = '<option value="">— 請選擇顏色 —</option>';
-  COLOR_OPTIONS.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c;
-    opt.textContent = c;
-    colorFilter.appendChild(opt);
-  });
-  colorFilter.disabled = false;
   updateSteps(3);
-}
-
-function onColorChange() {
-  selectedColor = colorFilter.value;
-  if (selectedColor) {
-    updateSteps(4);
-  } else {
-    updateSteps(3);
-  }
-  hideResult();
   tryShowResult();
 }
 
@@ -541,35 +480,55 @@ function toggleShipping(btn, name, cost) {
   tryShowResult();
 }
 
-// ===== Show single result =====
+// ===== Show result =====
 function tryShowResult() {
   const vendor = vendorFilter.value;
   const model = modelFilter.value;
   const desc = descFilter.value;
 
-  if (!vendor || !model || !desc || !selectedColor || !selectedShipping) {
+  if (!vendor || !model || !desc || !selectedShipping) {
     hideResult();
     return;
   }
 
+  // 找到符合的產品（用型號+描述定義價格，不再用顏色）
   const p = PRODUCTS.find(x =>
     x.vendorName === vendor &&
     x.model === model &&
-    x.desc === desc &&
-    x.colorCategory === selectedColor
+    x.desc === desc
   );
 
   if (!p) { hideResult(); return; }
 
+  const isTWD = p.currency === 'TWD';
   const isTax = p.priceType === '含稅';
-  const typeClass = isTax ? 'tax' : 'notax';
-  const typeLabel = isTax ? '含稅價格' : '未含稅價格';
-  const sym = p.currency === 'USD' ? '$' : p.currency === 'CNY' ? '¥' : '';
   const shipIcon = (SHIP_OPTIONS.find(s => s.name === selectedShipping) || {}).icon || '';
   const totalTWD = p.baseTWD + selectedShippingCost;
 
+  let typeClass, typeLabel;
+  if (isTWD) {
+    typeClass = 'twd';
+    typeLabel = '台幣直接報價';
+  } else if (isTax) {
+    typeClass = 'tax';
+    typeLabel = '含稅價格';
+  } else {
+    typeClass = 'notax';
+    typeLabel = '未含稅價格';
+  }
+
+  const sym = p.currency === 'USD' ? '$' : p.currency === 'CNY' ? '¥' : 'NT$';
+
   let priceRows = '';
-  if (isTax) {
+  if (isTWD) {
+    // 台幣：直接顯示單價，不做匯率換算
+    priceRows = `
+      <div class="price-row">
+        <span class="label">單價 (TWD)</span>
+        <span class="value">NT$${num(p.unitPrice)}</span>
+      </div>`;
+  } else if (isTax) {
+    // CNY/USD 含稅：顯示含稅 + 未含稅
     priceRows = `
       <div class="price-row">
         <span class="label">含稅單價 (${p.currency})</span>
@@ -577,9 +536,10 @@ function tryShowResult() {
       </div>
       <div class="price-row">
         <span class="label">未含稅單價 (${p.currency}) <span class="tag notax">自動換算</span></span>
-        <span class="value">${sym}${num(p.unitPriceAlt)}</span>
+        <span class="value">${sym}${num(p.unitPriceNoTax)}</span>
       </div>`;
   } else {
+    // CNY/USD 未含稅
     priceRows = `
       <div class="price-row">
         <span class="label">未含稅單價 (${p.currency})</span>
@@ -591,7 +551,7 @@ function tryShowResult() {
   <div class="result-section">
     <div class="result-title ${typeClass}">
       <span class="tag ${typeClass}" style="background:rgba(255,255,255,.2);color:#fff;">${typeLabel}</span>
-      ${p.vendorName} — ${p.model} — ${p.colorCategory}
+      ${p.vendorName} — ${p.model}
     </div>
     <div class="result-body">
       <div class="product-info">
@@ -634,9 +594,6 @@ function resetFrom(level) {
     descFilter.innerHTML = '<option value="">— 請先選擇型號 —</option>';
     descFilter.disabled = true;
   }
-  selectedColor = "";
-  colorFilter.innerHTML = '<option value="">— 請先選擇描述 —</option>';
-  colorFilter.disabled = true;
   hideResult();
 }
 
@@ -647,28 +604,22 @@ function resetAll() {
   modelFilter.disabled = true;
   descFilter.innerHTML = '<option value="">— 請先選擇型號 —</option>';
   descFilter.disabled = true;
-  colorFilter.innerHTML = '<option value="">— 請先選擇描述 —</option>';
-  colorFilter.disabled = true;
-  selectedColor = '';
   selectedShipping = '';
   selectedShippingCost = 0;
   document.querySelectorAll('.ship-btn').forEach(b => b.classList.remove('selected'));
   shippingGrid.innerHTML = '';
   updateSteps(0);
   hideResult();
-  // 重新載入資料
   loadData();
 }
 
-// ===== Step indicator =====
+// ===== Step indicator (3 steps now) =====
 function updateSteps(level) {
   document.getElementById('s1').className = 'step ' + (level >= 1 ? 'done' : 'active');
   document.getElementById('sl1').className = 'step-line ' + (level >= 1 ? 'done' : '');
   document.getElementById('s2').className = 'step ' + (level >= 2 ? 'done' : level >= 1 ? 'active' : '');
   document.getElementById('sl2').className = 'step-line ' + (level >= 2 ? 'done' : '');
   document.getElementById('s3').className = 'step ' + (level >= 3 ? 'done' : level >= 2 ? 'active' : '');
-  document.getElementById('sl3').className = 'step-line ' + (level >= 3 ? 'done' : '');
-  document.getElementById('s4').className = 'step ' + (level >= 4 ? 'done' : level >= 3 ? 'active' : '');
 }
 
 function num(v) {
