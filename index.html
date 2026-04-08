@@ -2,633 +2,2489 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>燙金膜成本查詢系統</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>EMBA E118 共學團點餐系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", sans-serif;
-    background: #f0f2f5;
-    color: #333;
-    min-height: 100vh;
+:root{
+  --bg:#f7f5f1;--sur:#fff;--bdr:#e5e0d8;--bdr2:#ccc8c0;
+  --ink:#1c1917;--ink2:#6b6560;--ink3:#b0aaa3;
+  --dark:#1c1917;--dktx:#f5f0e8;
+  --dr:#0a5c8a;--drbg:#e6f3fb;--drbdr:#a8d4ee;
+  --fo:#8a3a0a;--fobg:#fbede6;--fobdr:#eebda8;
+  --gold:#c98a0a;--goldbg:#fef5d6;
+  --grn:#15803d;--grnbg:#f0fdf4;
+  --r:14px;--r2:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#141210;--sur:#1e1b18;--bdr:#2e2a26;--bdr2:#3d3830;
+    --ink:#f0ebe3;--ink2:#9b9389;--ink3:#5a5550;
+    --dark:#0e0c0a;--dktx:#f5f0e8;
+    --dr:#4a9ebe;--drbg:#0d2233;--drbdr:#1e4a66;
+    --fo:#d4804a;--fobg:#2a1206;--fobdr:#5c2e10;
+    --gold:#e0a020;--goldbg:#2a1f00;
+    --grn:#22c55e;--grnbg:#052010;
   }
-  .header {
-    background: linear-gradient(135deg, #1a73e8, #0d47a1);
-    color: #fff;
-    padding: 20px 16px 16px;
-    text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
-  }
-  .header h1 { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
-  .header .subtitle { font-size: 12px; opacity: .8; margin-top: 4px; }
-  .container { padding: 16px; max-width: 480px; margin: 0 auto; }
+  .fin{color:var(--ink);background:var(--bg)}
+  .btn-out{border-color:var(--bdr2);color:var(--ink2)}
+  .pshop-card{background:var(--sur)}
+  .order-card{background:var(--sur)}
+  .sc{background:var(--sur)}
+  .lkbox{background:var(--sur)}
+  .paybox{border-color:var(--gold)}
+  .addrow input{color:var(--ink);background:var(--bg)}
+  .modal-sheet{background:var(--sur)}
+  .cf-sheet{background:var(--sur)}
+  .cf-pw{background:var(--bg);color:var(--ink);border-color:var(--bdr2)}
+  textarea.fin{color:var(--ink)}
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.scr{display:none;flex-direction:column;min-height:100vh}
+.scr.on{display:flex}
+.tb{background:var(--dark);color:var(--dktx);padding:13px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.tb-bk{background:none;border:none;color:var(--dktx);font-size:1.1rem;cursor:pointer;opacity:.65;padding:4px 6px;transition:opacity .15s}
+.tb-bk:hover{opacity:1}
+.tb-t{font-size:.92rem;font-weight:900;flex:1}
+.tb-s{font-size:.63rem;color:rgba(245,240,232,.38);font-family:'DM Mono',monospace;margin-top:1px}
+.wrap{flex:1;max-width:640px;width:100%;margin:0 auto;padding:18px 15px 100px}
 
-  .section-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08);
-  }
-  .section-card h2 {
-    font-size: 15px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .section-card h2.blue { color: #1a73e8; }
-  .section-card h2.orange { color: #e67e22; }
+/* HERO */
+.hero{text-align:center;padding:28px 0 22px}
+.hero-ico{font-size:2.8rem;display:block;animation:bob 2.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.hero-t{font-size:1.6rem;font-weight:900;letter-spacing:-.02em;margin:9px 0 4px}
+.hero-s{font-size:.8rem;color:var(--ink2);line-height:1.65}
 
-  .field { margin-bottom: 12px; }
-  .field:last-child { margin-bottom: 0; }
-  .field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #555;
-    margin-bottom: 6px;
-  }
-  .field select {
-    width: 100%;
-    padding: 12px 14px;
-    font-size: 16px;
-    border: 1.5px solid #ddd;
-    border-radius: 8px;
-    background: #fafafa;
-    color: #333;
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    cursor: pointer;
-    transition: border-color .2s;
-  }
-  .field select:focus { outline: none; border-color: #1a73e8; background-color: #fff; }
-  .field select:disabled { background: #f0f0f0; color: #aaa; cursor: not-allowed; }
+/* DATE */
+.wnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.wnav-btn{background:none;border:2px solid var(--bdr);border-radius:8px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .15s}
+.wnav-btn:hover{border-color:var(--ink);background:var(--ink);color:#fff}
+.dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px}
+.dc{border-radius:8px;border:2px solid var(--bdr);background:var(--sur);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 2px;gap:1px;transition:all .15s;min-height:50px}
+.dc:hover{border-color:var(--ink)}
+.dc.sel{background:var(--dark);border-color:var(--dark);color:var(--dktx)}
+.dc.has{border-color:var(--gold);background:var(--goldbg)}
+.dc.sel.has{background:var(--dark);border-color:var(--dark);color:var(--dktx)}
+.dc .D{font-size:.86rem;font-weight:900;line-height:1}
+.dc .W{font-size:.52rem;opacity:.58}
+.dc .dots{display:flex;gap:2px;margin-top:2px}
+.dc .dot{width:4px;height:4px;border-radius:50%}
+.dc .dot.dr{background:var(--dr)}
+.dc .dot.fo{background:var(--fo)}
+.dc.sel .dot{background:rgba(245,240,232,.6)}
 
-  /* Step indicator */
-  .step-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    margin-bottom: 14px;
-  }
-  .step {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 600;
-    background: #e0e0e0; color: #999;
-    transition: all .3s;
-  }
-  .step.active { background: #1a73e8; color: #fff; }
-  .step.done { background: #4caf50; color: #fff; }
-  .step-line { width: 20px; height: 2px; background: #e0e0e0; transition: background .3s;
-  }
-  .step-line.done { background: #4caf50; }
+/* LOCK */
 
-  /* Button grid */
-  .btn-grid { display: grid; gap: 10px; }
-  .btn-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-  .pick-btn {
-    position: relative;
-    padding: 12px 8px;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    background: #fafafa;
-    cursor: pointer;
-    text-align: center;
-    transition: all .2s;
-  }
-  .pick-btn:active { transform: scale(0.97); }
-  .pick-btn .btn-label { font-size: 15px; font-weight: 700; color: #333; }
-  .pick-btn .btn-sub { font-size: 12px; color: #888; margin-top: 3px; }
-  .pick-btn .check-mark {
-    position: absolute; top: 4px; right: 6px;
-    font-size: 14px; display: none;
-  }
-  .pick-btn.selected .check-mark { display: block; }
-  .pick-btn.ship-btn.selected {
-    border-color: #e67e22; background: #fff8f0;
-    box-shadow: 0 0 0 1px #e67e22;
-  }
-  .pick-btn.ship-btn.selected .btn-label { color: #e67e22; }
-  .pick-btn.ship-btn.selected .btn-sub { color: #e67e22; }
 
-  /* Result */
-  .result-section {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08);
-    animation: fadeIn .3s ease;
-  }
-  @geyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* TYPE CARDS */
+.trow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;align-items:start}
+.tc{border:2.5px solid var(--bdr);border-radius:var(--r);padding:18px 12px;text-align:center;cursor:pointer;transition:all .2s;background:var(--sur)}
+.tc:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(0,0,0,.08)}
+.tc.dr{border-color:var(--drbdr);background:var(--drbg)}
+.tc.fo{border-color:var(--fobdr);background:var(--fobg)}
+.tc-ico{font-size:2.2rem;display:block;margin-bottom:7px}
+.tc-nm{font-size:.98rem;font-weight:900}
+.tc-sb{font-size:.69rem;color:var(--ink2);margin-top:2px}
+.tc-st{font-size:.67rem;margin-top:6px;font-weight:700}
+.tc-st.op{color:var(--grn)}
+.tc-st.em{color:var(--gold)}
 
-  .result-title {
-    padding: 12px 16px; font-size: 14px; font-weight: 600;
-    color: #fff; display: flex; align-items: center; gap: 6px;
-  }
-  .result-title.tax { background: #1a73e8; }
-  .result-title.notax { background: #e67e22; }
-  .result-title.twd { background: #2e7d32; }
-  .result-body { padding: 16px; }
-  .product-info {
-    margin-bottom: 12px; padding-bottom: 12px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  .product-info .model-name { font-size: 17px; font-weight: 700; color: #333; }
-  .product-info .desc { font-size: 13px; color: #777; margin-top: 2px; }
-  .price-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0; border-bottom: 1px solid #f5f5f5;
-  }
-  .price-row:last-child { border-bottom: none; }
-  .price-row .label { font-size: 13px; color: #666; }
-  .price-row .value { font-size: 15px; font-weight: 600; color: #333; }
-  .price-row.total .label { font-size: 14px; font-weight: 600; color: #333; }
-  .price-row.total .value { font-size: 22px; font-weight: 700; color: #e65100; }
-  .price-row.shipping .value { color: #e67e22; font-weight: 600; }
-  .note-badge {
-    display: innline-block; background: #e3f2fd; color: #1565c0;
-    font-size: 12px; padding: 3px 8px; border-radius: 4px; margin-top: 8px;
-  }
-  .tag {
-    display: inline-block; font-size: 11px; padding: 2px 6px;
-    border-radius: 4px; font-weight: 600;
-  }
-  .tag.tax { background: #e3f2fd; color: #1565c0; }
-  .tag.notax { background: #fff3e0; color: #e65100; }
-  .tag.twd { background: #e8f5e9; color: #2e7d32; }
+/* DAY HDR */
+.dhdr{background:var(--dark);border-radius:var(--r);padding:13px 17px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;color:var(--dktx)}
+.dhdr-d{font-size:1.05rem;font-weight:900;color:#fbbf24}
+.dhdr-w{font-size:.67rem;color:rgba(245,240,232,.38);margin-top:2px;font-family:'DM Mono',monospace}
 
-  #resultArea { display: none; }
-  #resultArea.visible { display: block; }
+/* SHOP SELECT */
+.sect{font-size:.67rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:14px 0 7px;display:flex;align-items:center;gap:7px}
+.sect::after{content:'';flex:1;height:1px;background:var(--bdr)}
 
-  /* Loading overlay */
-  .loading-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(255,255,255,0.95);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    z-index: 9999;
-    transition: opacity 0.3s;
-  }
-  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .loading-spinner {
-    width: 40px; height: 40px;
-    border: 4px solid #e0e0e0;
-    border-top-color: #1a73e8;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { margin-top: 16px; font-size: 14px; color: #666; }
-  .error-box {
-    background: #fff3e0; border: 1px solid #ffcc80; border-radius: 8px;
-    padding: 16px; margin: 16px; text-align: center; color: #e65100; font-size: 14px;
-  }
-  .error-box button {
-    margin-top: 12px; padding: 8px 20px; background: #e65100; color: #fff;
-    border: none; border-radius: 6px; font-size: 14px; cursor: pointer;
-  }
+/* FUZZY SEARCH */
+.fwrap{position:relative;margin-bottom:10px}
+.fin{width:100%;border:2px solid var(--bdr);border-radius:var(--r2);padding:11px 13px 11px 35px;font-size:.88rem;outline:none;font-family:'Noto Sans TC',sans-serif;background:var(--sur);transition:border-color .15s}
+.fin:focus{border-color:var(--ink)}
+.ficon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none}
+.fdrop{position:absolute;top:calc(100% - 2px);left:0;right:0;background:var(--sur);border:2px solid var(--ink);border-top:none;border-radius:0 0 var(--r2) var(--r2);z-index:30;max-height:240px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.fdrop.on{display:block}
+.fitem{padding:10px 13px;cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .1s}
+.fitem:last-child{border-bottom:none}
+.fitem:hover,.fitem.hi{background:var(--goldbg)}
+.fi-nm{font-size:.86rem;font-weight:700}
+.fi-ad{font-size:.69rem;color:var(--ink2);margin-top:1px}
+.fhi{color:var(--gold);font-weight:900}
 
-  .data-info {
-    text-align: center; font-size: 11px; color: #aaa; margin-bottom: 16px;
-  }
-  .data-info .refresh-link {
-    color: #1a73e8; cursor: pointer; text-decoration: underline;
-  }
-  .reset-btn {
-    display: block; width: 100%; padding: 12px;
-    background: #f5f5f5; border: 1.5px solid #ddd; border-radius: 8px;
-    font-size: 14px; color: #666; cursor: pointer; margin-bottom: 24px;
-    transition: background .2s;
-  }
-  .reset-btn:active { background: #e8e8e8; }
+/* PRESET GRID */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pc{border:1.5px solid var(--bdr);border-radius:var(--r2);padding:9px 11px;cursor:pointer;background:var(--sur);transition:all .15s;display:flex;align-items:center;gap:7px}
+.pc:hover{border-color:var(--gold);background:var(--goldbg);transform:translateY(-1px)}
+.pc-ico{font-size:1.1rem;flex-shrink:0}
+.pc-nm{font-size:.78rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc-ad{font-size:.61rem;color:var(--ink2);margin-top:1px}
+
+/* AI LOADING */
+.aibox{background:var(--dark);border-radius:var(--r);padding:16px;margin-bottom:12px;color:var(--dktx)}
+.ai-shop{font-size:.96rem;font-weight:900;color:#fbbf24;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.ai-steps{display:flex;flex-direction:column;gap:6px}
+.aist{display:flex;align-items:center;gap:7px;font-size:.76rem;color:rgba(245,240,232,.55)}
+.aist.done{color:#4ade80}
+.aist.load{color:#fbbf24}
+.aist .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.aist.load .dot{animation:pulse .75s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.15}}
+
+/* MENU LIST */
+.mlist{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.mi{background:var(--sur);border:2px solid var(--bdr);border-radius:var(--r2);padding:10px 12px;display:flex;align-items:center;gap:8px}
+.mi-info{flex:1;min-width:0}
+.mi-nm{font-size:.85rem;font-weight:700}
+.mi-cat{font-size:.61rem;color:var(--ink3);font-family:'DM Mono',monospace;margin-top:1px}
+.mi-p{font-size:.86rem;font-weight:700;color:#dc2626;font-family:'DM Mono',monospace;white-space:nowrap}
+.mi-del{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.9rem;padding:3px;transition:color .15s;flex-shrink:0}
+.mi-del:hover{color:#dc2626}
+.addrow{display:grid;grid-template-columns:1fr 70px 70px auto;gap:5px}
+.addrow input{border:2px solid var(--bdr);border-radius:8px;padding:8px 9px;font-size:.79rem;outline:none;background:var(--bg);font-family:'Noto Sans TC',sans-serif;transition:border-color .15s}
+.addrow input:focus{border-color:var(--gold)}
+
+/* ORDER */
+.ohero{border-radius:var(--r);padding:13px 15px;margin-bottom:13px}
+.ohero.dr{background:var(--drbg);border:2px solid var(--drbdr)}
+.ohero.fo{background:var(--fobg);border:2px solid var(--fobdr)}
+.oh-shop{font-size:1.02rem;font-weight:900}
+.oh-host{font-size:.71rem;color:var(--ink2);margin-top:3px}
+.oh-cnt{font-size:.66rem;font-family:'DM Mono',monospace;color:var(--ink3);margin-top:2px}
+.olist{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.oi{background:var(--sur);border:2px solid var(--bdr);border-radius:var(--r2);padding:10px 12px;display:flex;align-items:center;gap:9px;transition:border-color .15s}
+.oi.sel{border-color:var(--gold)}
+.oi-info{flex:1}
+.oi-nm{font-size:.86rem;font-weight:700}
+.oi-cat{font-size:.61rem;color:var(--ink3);font-family:'DM Mono',monospace;margin-top:1px}
+.oi-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.oi-p{font-size:.9rem;font-weight:700;color:#dc2626;font-family:'DM Mono',monospace}
+.qrow{display:flex;align-items:center;gap:5px}
+.qbtn{width:26px;height:26px;border-radius:50%;border:2px solid var(--bdr2);background:var(--bg);cursor:pointer;font-size:.88rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .15s;color:var(--ink)}
+.qbtn.p{background:var(--dark);border-color:var(--dark);color:var(--dktx)}
+.qbtn.m:hover{background:#dc2626;border-color:#dc2626;color:#fff}
+.qnum{font-size:.85rem;font-weight:700;font-family:'DM Mono',monospace;min-width:15px;text-align:center}
+
+/* PAY SETUP */
+.ptabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
+.ptab{border:2px solid var(--bdr);border-radius:var(--r2);padding:12px;text-align:center;cursor:pointer;transition:all .15s;background:var(--sur)}
+.ptab.sel{border-color:var(--grn);background:var(--grnbg)}
+.ptab.full{grid-column:1/-1}
+.pt-ico{font-size:1.4rem;display:block;margin-bottom:3px}
+.pt-nm{font-size:.78rem;font-weight:700}
+.pt-sb{font-size:.64rem;color:var(--ink2);margin-top:1px}
+.upzone{border:2px dashed var(--bdr2);border-radius:var(--r2);padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
+.upzone:hover{border-color:var(--gold);background:var(--goldbg)}
+.upzone.has{border-style:solid;border-color:var(--grn);background:var(--grnbg)}
+.upzone img{max-width:130px;max-height:130px;border-radius:8px;object-fit:contain}
+.upzone-t{font-size:.74rem;color:var(--ink3);margin-top:5px}
+
+/* CONFIRM / DONE */
+.sc{background:var(--sur);border:2px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:11px}
+.sc-hd{background:var(--dark);color:var(--dktx);padding:9px 14px;font-size:.69rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.sc-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--bdr);font-size:.82rem}
+.sc-row:last-child{border-bottom:none}
+.sc-q{color:var(--gold);font-family:'DM Mono',monospace;font-weight:700;margin-right:4px}
+.sc-p{font-family:'DM Mono',monospace;color:#dc2626;font-weight:700}
+.sc-tot{background:var(--bg);padding:11px 14px;display:flex;justify-content:space-between;font-weight:900}
+.sc-ta{font-size:1.3rem;font-family:'DM Mono',monospace;color:#dc2626}
+.paybox{background:var(--sur);border:2px solid var(--gold);border-radius:var(--r);padding:17px;text-align:center;margin-bottom:11px}
+.pb-t{font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.pb-a{font-size:1.95rem;font-weight:900;font-family:'DM Mono',monospace;color:#dc2626;margin-bottom:3px}
+.pb-s{font-size:.71rem;color:var(--ink3);margin-bottom:13px}
+.lp-btn{display:inline-flex;align-items:center;gap:6px;background:#06c755;color:#fff;border-radius:8px;padding:10px 18px;font-size:.86rem;font-weight:700;text-decoration:none;font-family:'Noto Sans TC',sans-serif;transition:background .15s}
+.lp-btn:hover{background:#05aa49}
+.ip-btn{display:inline-flex;align-items:center;gap:6px;background:#003087;color:#fff;border-radius:8px;padding:10px 18px;font-size:.86rem;font-weight:700;text-decoration:none;font-family:'Noto Sans TC',sans-serif;transition:background .15s}
+.ip-btn:hover{background:#002070}
+.qrimg{max-width:150px;max-height:150px;border-radius:8px;border:2px solid var(--bdr);margin:0 auto;display:block}
+.done-h{text-align:center;padding:26px 0 14px}
+.done-ico{font-size:2.8rem;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.done-t{font-size:1.25rem;font-weight:900;margin:9px 0 4px}
+.done-s{font-size:.81rem;color:var(--ink2);line-height:1.65}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 17px;border-radius:9px;border:none;font-size:.86rem;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .15s;white-space:nowrap}
+.btn-dk{background:var(--dark);color:var(--dktx)}
+.btn-dk:hover{background:#2d2a26}
+.btn-out{background:transparent;color:var(--ink2);border:2px solid var(--bdr2)}
+.btn-out:hover{border-color:var(--ink);color:var(--ink)}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-full{width:100%}
+.btn-sm{padding:6px 10px;font-size:.75rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* INFO */
+.ibox{border-radius:var(--r2);padding:9px 12px;font-size:.74rem;line-height:1.6;display:flex;gap:6px;margin-bottom:9px}
+.i-ok{background:var(--grnbg);border:1.5px solid #bbf7d0;color:var(--grn)}
+.i-bl{background:var(--drbg);border:1.5px solid var(--drbdr);color:var(--dr)}
+.i-wa{background:#fffbeb;border:1.5px solid #fde68a;color:#92400e}
+
+/* FLOAT BAR */
+.fbar{position:fixed;bottom:0;left:0;right:0;z-index:40;background:var(--sur);border-top:2px solid var(--bdr);padding:10px 15px 18px;display:none}
+.fbar.on{display:block}
+.fbar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.fbar-inf{flex:1}
+.fbar-l{font-size:.64rem;color:var(--ink3)}
+.fbar-a{font-size:1.2rem;font-weight:900;color:#dc2626;font-family:'DM Mono',monospace}
+
+/* SPINNER */
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.25);border-top-color:var(--dktx);border-radius:50%;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* SEL SHOP BOX */
+.ssb{background:var(--dark);border-radius:var(--r);padding:13px 15px;margin-bottom:13px;color:var(--dktx);display:flex;align-items:center;gap:11px}
+.ssb-ico{font-size:1.5rem}
+.ssb-info{flex:1}
+.ssb-nm{font-size:.95rem;font-weight:900;color:#fbbf24}
+.ssb-ad{font-size:.67rem;color:rgba(245,240,232,.38);margin-top:2px;font-family:'DM Mono',monospace}
+.ssb-chg{background:none;border:1px solid rgba(245,240,232,.22);border-radius:6px;color:rgba(245,240,232,.6);font-size:.69rem;padding:4px 8px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .15s;white-space:nowrap}
+.ssb-chg:hover{border-color:rgba(245,240,232,.5);color:var(--dktx)}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--dark);color:var(--dktx);border-radius:50px;padding:9px 18px;font-size:.78rem;font-weight:700;z-index:200;opacity:0;pointer-events:none;transition:all .25s;white-space:nowrap;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+
+
+/* SWEETNESS / ICE MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+.modal-sheet{background:var(--sur);border-radius:20px 20px 0 0;width:100%;max-width:640px;padding:20px 18px 36px;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:1rem;font-weight:900;margin-bottom:4px}
+.modal-sub{font-size:.75rem;color:var(--ink2);margin-bottom:16px}
+.opt-group{margin-bottom:14px}
+.opt-group-label{font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:7px}
+.opt-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:7px 14px;border-radius:50px;border:2px solid var(--bdr2);background:var(--bg);font-size:.8rem;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Noto Sans TC',sans-serif}
+.chip:hover{border-color:var(--ink)}
+.chip.sel{background:var(--dark);border-color:var(--dark);color:var(--dktx)}
+
+/* MULTI-ORDER */
+.order-person-tab{display:flex;gap:0;overflow-x:auto;margin-bottom:14px;border-bottom:2px solid var(--bdr);scrollbar-width:none}
+.order-person-tab::-webkit-scrollbar{display:none}
+.opt{flex-shrink:0;padding:8px 14px;cursor:pointer;font-size:.8rem;font-weight:700;border-bottom:3px solid transparent;transition:all .15s;color:var(--ink2);white-space:nowrap;font-family:'Noto Sans TC',sans-serif;background:none;border-top:none;border-left:none;border-right:none}
+.opt.active{color:var(--dark);border-bottom-color:var(--dark)}
+.opt.has-item{color:var(--grn)}
+.opt.has-item.active{border-bottom-color:var(--grn)}
+.add-person-btn{flex-shrink:0;padding:8px 12px;cursor:pointer;font-size:.8rem;font-weight:700;color:var(--gold);border:none;background:none;font-family:'Noto Sans TC',sans-serif}
+
+/* EDIT ORDER */
+.edit-order-card{background:var(--sur);border:2px solid var(--gold);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px}
+
+/* GROUP DETAIL */
+.gd-hero{border-radius:var(--r);padding:15px 17px;margin-bottom:14px}
+.gd-hero.dr{background:var(--drbg);border:2px solid var(--drbdr)}
+.gd-hero.fo{background:var(--fobg);border:2px solid var(--fobdr)}
+.gd-shop{font-size:1.05rem;font-weight:900}
+.gd-host{font-size:.75rem;color:var(--ink2);margin-top:3px}
+.gd-stats{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.gd-stat{font-size:.72rem;font-family:'DM Mono',monospace}
+.gd-stat .v{font-size:1.1rem;font-weight:900;display:block;color:var(--ink)}
+.gd-stat .l{color:var(--ink3)}
+.order-card{background:var(--sur);border:2px solid var(--bdr);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px}
+.oc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.oc-name{font-size:.9rem;font-weight:700}
+.oc-total{font-size:.9rem;font-weight:700;color:#dc2626;font-family:'DM Mono',monospace}
+.oc-items{font-size:.76rem;color:var(--ink2);line-height:1.7}
+.oc-paid{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:50px;cursor:pointer;border:none;font-family:'Noto Sans TC',sans-serif;transition:all .15s;margin-top:6px}
+.oc-paid.yes{background:#dcfce7;color:#15803d}
+.oc-paid.no{background:#fef9c3;color:#854d0e}
+.oc-paid.no:hover{background:#fde047;color:#713f12}
+.del-group-btn{display:flex;align-items:center;gap:6px;width:100%;padding:12px;border-radius:9px;border:2px solid #fecaca;background:#fff5f5;color:#dc2626;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;justify-content:center;transition:all .15s;margin-top:8px}
+.del-group-btn:hover{background:#fee2e2;border-color:#dc2626}
+.pay-summary{display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:var(--r2);padding:10px 14px;margin-bottom:12px}
+.ps-label{font-size:.72rem;color:var(--ink2)}
+.ps-val{font-size:.88rem;font-weight:700;font-family:'DM Mono',monospace}
+
+/* MENU UPLOAD */
+.upload-menu-box{border:2px dashed var(--bdr2);border-radius:var(--r2);padding:18px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);margin-bottom:10px}
+.upload-menu-box:hover{border-color:var(--gold);background:var(--goldbg)}
+.upload-menu-box.has{border-style:solid;border-color:var(--grn);background:#f0fdf4}
+.upload-menu-box img{max-width:100%;max-height:180px;border-radius:8px;object-fit:contain}
+.upload-menu-txt{font-size:.78rem;color:var(--ink3);margin-top:6px}
+.ocr-progress{background:var(--dark);border-radius:var(--r2);padding:12px 14px;color:var(--dktx);font-size:.78rem;margin-bottom:10px;display:none}
+.ocr-progress.on{display:block}
+.ocr-step{display:flex;align-items:center;gap:7px;padding:3px 0}
+.ocr-step .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.ocr-step.load{color:#fbbf24}.ocr-step.load .dot{animation:pulse .8s ease-in-out infinite}
+.ocr-step.done{color:#4ade80}
+.or-divider{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:.72rem;color:var(--ink3)}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* PRESET SHOP CARD */
+.pshop-card{background:var(--sur);border:2px solid var(--bdr);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:border-color .15s}
+.pshop-card:hover{border-color:var(--gold)}
+.pshop-hd{display:flex;align-items:center;gap:11px;padding:13px 14px;cursor:pointer}
+.pshop-ico{font-size:1.5rem;flex-shrink:0}
+.pshop-info{flex:1}
+.pshop-nm{font-size:.9rem;font-weight:900}
+.pshop-addr{font-size:.68rem;color:var(--ink2);margin-top:2px}
+.pshop-tel{font-size:.68rem;color:var(--dr);margin-top:1px;font-family:'DM Mono',monospace}
+.pshop-arrow{font-size:.9rem;color:var(--ink3);transition:transform .2s}
+.pshop-card.open .pshop-arrow{transform:rotate(90deg)}
+.pshop-body{display:none;border-top:1px solid var(--bdr);padding:10px 14px}
+.pshop-card.open .pshop-body{display:block}
+.pshop-select{width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:2px solid var(--dark);background:var(--dark);color:var(--dktx);font-size:.84rem;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
+.pshop-menu-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bdr);font-size:.78rem}
+.pshop-menu-item:last-child{border-bottom:none}
+.pshop-menu-cat{font-size:.65rem;color:var(--ink3);font-family:'DM Mono',monospace;margin-left:6px}
+.pshop-menu-price{font-family:'DM Mono',monospace;color:#dc2626;font-weight:700;flex-shrink:0}
+
+/* CONFIRM / DELETE MODAL */
+.cf-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px}
+.cf-sheet{background:var(--sur);border-radius:18px;width:100%;max-width:400px;padding:24px 22px 22px;animation:pop .2s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.cf-title{font-size:1.05rem;font-weight:900;margin-bottom:8px;color:var(--ink)}
+.cf-msg{font-size:.81rem;color:var(--ink2);line-height:1.7;margin-bottom:16px}
+.cf-pw{width:100%;border:2px solid var(--bdr2);border-radius:10px;padding:14px;font-size:1.2rem;font-family:'DM Mono',monospace;letter-spacing:.25em;outline:none;margin-bottom:14px;background:var(--bg);color:var(--ink);text-align:center;display:block}
+.cf-pw:focus{border-color:var(--ink)}
+.cf-pw.err{border-color:#dc2626;animation:shake .3s}
+.cf-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* PDF PRINT STYLES */
+@media print{
+  body{background:#fff!important}
+  .scr{display:none!important}
+  #pdf-print-area{display:block!important}
+  .no-print{display:none!important}
+  .print-page{page-break-after:always}
+  .print-page:last-child{page-break-after:avoid}
+}
+#pdf-print-area{display:none}
 </style>
 </head>
 <body>
 
-<!-- Loading overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-spinner"></div>
-  <div class="loading-text">正在載入最新資料...</div>
+<!-- LANDING -->
+<div class="scr on" id="s-land">
+  <div class="wrap" style="padding-top:0">
+    <div class="hero">
+      <img src="data:image/jpeg;base64,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" alt="NCKU EMBA 118" style="width:90px;height:90px;border-radius:16px;object-fit:cover;margin-bottom:10px;box-shadow:0 4px 20px rgba(0,0,0,.15)">
+      <div class="hero-t">EMBA E118<br>共學團點餐系統</div>
+      <div class="hero-s">選日期 → 飲料或便當 → 選店開團<br>內建菜單即時顯示，或上傳菜單照片 AI 辨識</div>
+    </div>
+    <div class="wnav">
+      <button class="wnav-btn" onclick="shiftW(-1)">‹</button>
+      <span style="font-size:.77rem;font-weight:700;color:var(--ink2)" id="w-lbl"></span>
+      <button class="wnav-btn" onclick="shiftW(1)">›</button>
+    </div>
+    <div class="dgrid" id="dgrid"></div>
+
+  </div>
 </div>
 
-<div class="header">
-  <h1>燙金膜成本查詢系統</h1>
-  <div class="subtitle">供應商 → 型號 → 描述 → 運費</div>
+<!-- DAY VIEW -->
+<div class="scr" id="s-day">
+  <div class="tb">
+    <button class="tb-bk" onclick="go('land')">←</button>
+    <div><div class="tb-t" id="day-t">選擇類型</div><div class="tb-s">飲料或便當</div></div>
+  </div>
+  <div class="wrap">
+    <div class="dhdr">
+      <div><div class="dhdr-d" id="day-d"></div><div class="dhdr-w" id="day-w"></div></div>
+      <div style="font-size:1.8rem">📅</div>
+    </div>
+    <div class="sect">🔍 全店搜尋（店名或品項）</div>
+    <div class="fwrap" id="gfwrap" style="margin-bottom:14px">
+      <span class="ficon">🔍</span>
+      <input class="fin" id="gfin" placeholder="輸入店名或品項，如：五十、滷肉飯、奶茶…" autocomplete="off"
+        oninput="globalFuzzy(this.value)" onkeydown="globalFuzzyKey(event)">
+      <div class="fdrop" id="gfdrop"></div>
+    </div>
+    <div class="or-divider">── 或選擇類型 ──</div>
+    <div class="trow" id="trow"></div>
+
+  </div>
 </div>
 
-<div class="container">
+<!-- SHOP SELECT -->
+<div class="scr" id="s-shop">
+  <div class="tb">
+    <button class="tb-bk" onclick="go('day')">←</button>
+    <div><div class="tb-t" id="shop-t">選擇店家</div><div class="tb-s" id="shop-s">選完後 AI 自動抓菜單</div></div>
+  </div>
+  <div class="wrap">
+    <div class="dhdr" style="margin-bottom:14px">
+      <div>
+        <div class="dhdr-d" id="shop-date"></div>
+        <div style="margin-top:5px;font-size:.8rem;font-weight:700;color:#fbbf24" id="shop-type-lbl"></div>
+      </div>
+      <div style="font-size:1.9rem" id="shop-type-ico">🧋</div>
+    </div>
 
-  <div class="data-info" id="dataInfo"></div>
+    <div class="sect">🔍 模糊搜尋</div>
+    <div class="fwrap" id="fwrap">
+      <span class="ficon">🔍</span>
+      <input class="fin" id="fin" placeholder="輸入關鍵字，如：五十、珍珠、雞腿、便當…" autocomplete="off"
+        oninput="fuzzy(this.value)" onkeydown="fuzzyKey(event)">
+      <div class="fdrop" id="fdrop"></div>
+    </div>
 
-  <!-- 篩選區 -->
-  <div class="section-card">
-    <h2 class="blue">🔍 產品篩選</h2>
-    <div class="step-indicator">
-      <div class="step" id="s1">1</div><div class="step-line" id="sl1"></div>
-      <div class="step" id="s2">2</div><div class="step-line" id="sl2"></div>
-      <div class="step" id="s3">3</div>
+    <div class="or-divider">── 或 ──</div>
+    <div class="sect">📸 上傳菜單照片讓 AI 辨識</div>
+    <div class="upload-menu-box" id="menu-upload-zone" onclick="document.getElementById('menu-img-input').click()">
+      <div id="menu-upload-preview">
+        <div style="font-size:1.8rem">📷</div>
+        <div class="upload-menu-txt">點擊上傳菜單照片（黑板/紙本/螢幕截圖皆可）</div>
+      </div>
     </div>
-    <div class="field">
-      <label>① 供應商</label>
-      <select id="vendorFilter"><option value="">— 請選擇供應商 —</option></select>
+    <input type="file" id="menu-img-input" accept="image/*" style="display:none" onchange="handleMenuImg(event)">
+    <div class="ocr-progress" id="ocr-box">
+      <div id="ocr-steps"></div>
     </div>
-    <div class="field">
-      <label>② 產品型號</label>
-      <select id="modelFilter" disabled><option value="">— 請先選擇供應商 —</option></select>
-    </div>
-    <div class="field">
-      <label>③ 產品描述</label>
-      <select id="descFilter" disabled><option value="">— 請先選擇型號 —</option></select>
+
+    <div class="or-divider">── 或 ──</div>
+    <button onclick="goPresets()" style="width:100%;padding:14px;border-radius:var(--r2);border:2px solid var(--bdr2);background:var(--sur);font-size:.88rem;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s" onmouseover="this.style.borderColor='var(--gold)';this.style.background='var(--goldbg)'" onmouseout="this.style.borderColor='var(--bdr2)';this.style.background='var(--sur)'">
+      <span id="preset-ico">📍</span>
+      <div style="text-align:left">
+        <div id="preset-lbl" style="font-size:.86rem">瀏覽精選20間店家</div>
+        <div style="font-size:.67rem;color:var(--ink3);margin-top:1px">含地址、電話、完整菜單</div>
+      </div>
+      <span style="margin-left:auto;color:var(--ink3)">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- 精選店家列表 -->
+<div class="scr" id="s-presets">
+  <div class="tb">
+    <button class="tb-bk" onclick="go('s-shop')">←</button>
+    <div><div class="tb-t" id="ps-title">精選店家</div><div class="tb-s" id="ps-sub">點選查看詳情與菜單</div></div>
+  </div>
+  <div class="wrap" id="ps-wrap"></div>
+</div>
+
+<!-- AI LOADING + MENU CONFIRM + HOST + PAY (合併在一個 screen) -->
+<div class="scr" id="s-setup">
+  <div class="tb">
+    <button class="tb-bk" onclick="setupBack()">←</button>
+    <div><div class="tb-t" id="setup-t">開團設定</div><div class="tb-s" id="setup-s"></div></div>
+  </div>
+  <div class="wrap" id="setup-wrap"></div>
+</div>
+
+<!-- ORDER -->
+<div class="scr" id="s-order">
+  <div class="tb">
+    <button class="tb-bk" onclick="go('day')">←</button>
+    <div><div class="tb-t" id="ord-t">點餐</div><div class="tb-s" id="ord-s"></div></div>
+  </div>
+  <div class="wrap" id="ord-wrap"></div>
+  <div class="fbar" id="fbar">
+    <div class="fbar-in">
+      <div class="fbar-inf"><div class="fbar-l">目前合計</div><div class="fbar-a" id="fbar-a">NT$0</div></div>
+      <button class="btn btn-dk" onclick="goConfirm()">確認結帳 →</button>
     </div>
   </div>
-
-  <!-- 運送方式 -->
-  <div class="section-card">
-    <h2 class="orange">🚢 運送方式</h2>
-    <div class="btn-grid cols-2" id="shippingGrid"></div>
-  </div>
-
-  <!-- 結果 -->
-  <div id="resultArea"></div>
-
-  <button class="reset-btn" onclick="resetAll()">↻ 清除所有篩選</button>
 </div>
+
+<!-- CONFIRM -->
+<div class="scr" id="s-confirm">
+  <div class="tb"><button class="tb-bk" onclick="go('order')">←</button><div><div class="tb-t">確認訂單</div></div></div>
+  <div class="wrap" id="cf-wrap"></div>
+</div>
+
+<!-- DONE -->
+<div class="scr" id="s-done">
+  <div class="tb"><div class="tb-t" style="flex:1;text-align:center">完成 🎉</div></div>
+  <div class="wrap" id="dn-wrap"></div>
+</div>
+
+<!-- GROUP DETAIL -->
+<div class="scr" id="s-group">
+  <div class="tb">
+    <button class="tb-bk" onclick="go('day')">←</button>
+    <div><div class="tb-t" id="gd-title">團訂單清單</div><div class="tb-s" id="gd-sub"></div></div>
+  </div>
+  <div class="wrap" id="gd-wrap"></div>
+</div>
+
+<div id="toast"></div>
 
 <script>
-// ============================================================
-//  Google Sheets 設定
-// ============================================================
-const SHEET_ID = '1TDW4-vHfpOG5ori-3hCWeWJUHlVVHjUZ8H-GCli822Q';
-const PRODUCTS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
+const PW = '118118';
 
-// ===== 全域資料 =====
-let PRODUCTS = [];
-const SHIPPING_RATES = {"報關": 15, "海運": 30, "快海": 60, "空運": 250};
-const SHIP_OPTIONS = [
-  { name: "快海", icon: "⚡" },
-  { name: "海運", icon: "🚢" },
-  { name: "報關", icon: "📋" },
-  { name: "空運", icon: "✈️" }
-];
+// 姓名改為手動輸入，不使用名單
+// 拍照辨識菜單透過 GAS 後端代理（避免 CORS、避免 Key 外洩）
+const GAS_URL = localStorage.getItem('gas_url') || 'https://script.google.com/macros/s/AKfycbxg3iYFufruK5J3qt-kw2yp4GYJyNd5fMf4CrMFX9VeNtMIigHw6uLFhrwT7NHYLXx3JQ/exec';
+const WD = ['日','一','二','三','四','五','六'];
+const WDF = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
 
-// ===== CSV 解析 =====
-function parseCSV(text) {
-  const rows = [];
-  let current = '';
-  let inQuotes = false;
-  let row = [];
+// ══════════════════════════════════════════════════
+// 飲料店內建菜單（台南地區價格，可選甜度冰塊）
+// ══════════════════════════════════════════════════
+const DRINK_LIST = []; // 已停用內建資料，全部從 GAS/Excel 讀取
 
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (inQuotes) {
-      if (ch === '"' && text[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else if (ch === '"') {
-        inQuotes = false;
-      } else {
-        current += ch;
-      }
-    } else {
-      if (ch === '"') {
-        inQuotes = true;
-      } else if (ch === ',') {
-        row.push(current.trim());
-        current = '';
-      } else if (ch === '\n' || ch === '\r') {
-        if (ch === '\r' && text[i + 1] === '\n') i++;
-        row.push(current.trim());
-        if (row.some(c => c !== '')) rows.push(row);
-        row = [];
-        current = '';
-      } else {
-        current += ch;
-      }
-    }
+// ══════════════════════════════════════════════════
+// 便當餐廳內建菜單（台南成大附近）
+// ══════════════════════════════════════════════════
+const FOOD_LIST = []; // 已停用內建資料，全部從 GAS/Excel 讀取
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const S = {
+  selDate: null, weekOff: 0,
+  type: null,
+  shopSel: null,
+  aiMenu: [],
+  hostName: '',
+  payMethod: null, payLink: '', ipassLink: '', payQr: null,
+  announcement: '', // 開團公告（選填）
+  setupStep: 0,
+  persons: [],        // [{name, cart, note}]  多人點餐
+  activePerson: 0,
+  curGroup: null,     // 目前操作的團
+  curGroupIdx: 0,     // 目前操作的團 index（同天可多個）
+  groups: {},         // groups[date][type] = [群組陣列]
+  fuzzyIdx: -1,
+  editingOrderIdx: -1,
+};
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function init(){
+  try{ S.groups=JSON.parse(localStorage.getItem('grps')||'{}'); }catch(e){}
+  try{ S.remoteMenus=JSON.parse(localStorage.getItem('remote_menus')||'null'); }catch(e){}
+  renderGrid();
+  if(GAS_URL){ syncGAS(); syncMenus(); startSyncPolling(); }
+}
+function saveG(){ localStorage.setItem('grps',JSON.stringify(S.groups)); }
+function setGasUrl(url){
+  localStorage.setItem('gas_url',url);
+  location.reload();
+}
+function fmt(d){ return d.toISOString().slice(0,10); }
+function dlbl(k){ const d=new Date(k+'T00:00:00'); return `${d.getMonth()+1}月${d.getDate()}日（${WD[d.getDay()]}）`; }
+
+// ═══════════════════════════════════════════════
+// DATE GRID
+// ═══════════════════════════════════════════════
+function shiftW(d){ S.weekOff+=d; renderGrid(); }
+function renderGrid(){
+  const today=new Date(), base=new Date(today);
+  base.setDate(today.getDate()+S.weekOff*7);
+  const dow=base.getDay(), mon=new Date(base);
+  mon.setDate(base.getDate()-(dow===0?6:dow-1));
+  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+  document.getElementById('w-lbl').textContent=`${mon.getMonth()+1}/${mon.getDate()} – ${sun.getMonth()+1}/${sun.getDate()}`;
+  let h='';
+  for(let i=0;i<7;i++){
+    const d=new Date(mon); d.setDate(mon.getDate()+i);
+    const k=fmt(d), isTd=fmt(today)===k, isSel=k===S.selDate;
+    const g=S.groups[k]||{}, hDr=!!(Array.isArray(g.drink)?g.drink.length:g.drink), hFo=!!(Array.isArray(g.food)?g.food.length:g.food);
+    h+=`<div class="dc${isSel?' sel':''}${(hDr||hFo)?' has':''}" onclick="selDate('${k}')">
+      <span class="D">${d.getDate()}</span>
+      <span class="W">${isTd?'今':WD[d.getDay()]}</span>
+      ${hDr||hFo?'<div class="dots">'+(hDr?'<span class="dot dr"></span>':'')+(hFo?'<span class="dot fo"></span>':'')+'</div>':''}
+    </div>`;
   }
-  row.push(current.trim());
-  if (row.some(c => c !== '')) rows.push(row);
-  return rows;
+  document.getElementById('dgrid').innerHTML=h;
+}
+function selDate(k){
+  S.selDate=k; renderGrid();
+  renderDay(); go('day');
 }
 
-// ===== 從 Google Sheets 載入資料 =====
-// 新的 Google Sheet 欄位（無顏色分類）：
-// 0:供應商代碼 1:供應商名稱 2:產品型號 3:產品描述
-// 4:幣別 5:價格類型 6:單價(輸入) 7:未含稅單價 8:台幣基礎成本 9:備註
-async function loadData() {
-  const overlay = document.getElementById('loadingOverlay');
-  try {
-    const prodResp = await fetch(PRODUCTS_CSV_URL);
-    if (!prodResp.ok) throw new Error('無法讀取產品資料');
-    const prodText = await prodResp.text();
-    const prodRows = parseCSV(prodText);
-    if (prodRows.length < 2) throw new Error('產品資料表是空的');
+// ═══════════════════════════════════════════════
+// PASSWORD
+// ═══════════════════════════════════════════════
+// 密碼驗證已移除（只有刪除才需要）
 
-    PRODUCTS = [];
-    for (let i = 1; i < prodRows.length; i++) {
-      const r = prodRows[i];
-      if (!r[0] && !r[2]) continue;
-
-      const currency = (r[4] || '').trim();
-      const priceType = (r[5] || '').trim();
-      const unitPrice = parseFloat(r[6]) || 0;
-      const unitPriceNoTax = r[7] !== '' && r[7] !== undefined && r[7] !== '—' ? parseFloat(r[7]) : null;
-      const baseTWD = parseInt(r[8]) || 0;
-
-      PRODUCTS.push({
-        vendorCode: (r[0] || '').trim(),
-        vendorName: (r[1] || '').trim(),
-        model: (r[2] || '').trim(),
-        desc: (r[3] || '').trim(),
-        currency: currency,
-        priceType: priceType,
-        unitPrice: unitPrice,
-        unitPriceNoTax: unitPriceNoTax,
-        baseTWD: baseTWD,
-        note: (r[9] || '').trim()
-      });
-    }
-
-    const now = new Date();
-    const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-    document.getElementById('dataInfo').innerHTML =
-      `資料更新時間：${timeStr}（${PRODUCTS.length} 筆） <span class="refresh-link" onclick="location.reload()">重新載入</span>`;
-
-    overlay.classList.add('hidden');
-    init();
-
-  } catch (err) {
-    overlay.innerHTML = `
-      <div class="error-box">
-        <div style="font-size:32px; margin-bottom:12px;">⚠️</div>
-        <div><b>資料載入失敗</b></div>
-        <div style="margin-top:8px; font-size:13px; color:#999;">${err.message}</div>
-        <div style="margin-top:8px; font-size:12px; color:#aaa;">請確認 Google 試算表已設為公開檢視</div>
-        <button onclick="location.reload()">重試</button>
-      </div>`;
-  }
-}
-
-// ===== State =====
-let selectedShipping = "";
-let selectedShippingCost = 0;
-
-// ===== DOM =====
-const vendorFilter = document.getElementById('vendorFilter');
-const modelFilter = document.getElementById('modelFilter');
-const descFilter = document.getElementById('descFilter');
-const shippingGrid = document.getElementById('shippingGrid');
-const resultArea = document.getElementById('resultArea');
-
-function init() {
-  const vendors = [...new Map(
-    PRODUCTS.filter(p => p.vendorName).map(p => [p.vendorName, p.vendorCode])
-  ).entries()].sort((a,b) => a[1].localeCompare(b[1]));
-  vendors.forEach(([name, code]) => {
-    const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = `${code}  ${name}`;
-    vendorFilter.appendChild(opt);
+// ═══════════════════════════════════════════════
+// DAY VIEW
+// ═══════════════════════════════════════════════
+function renderDay(){
+  var k=S.selDate;
+  document.getElementById('day-t').textContent=dlbl(k);
+  document.getElementById('day-d').textContent=dlbl(k);
+  document.getElementById('day-w').textContent=WDF[new Date(k+'T00:00:00').getDay()];
+  var g=S.groups[k]||{};
+  var rowsHtml='';
+  ['drink','food'].forEach(function(type){
+    var isDr=type==='drink';
+    var nm=isDr?'飲料團':'便當團',cls=isDr?'dr':'fo',ico=isDr?'🧋':'🍱';
+    var raw=g[type];
+    var grpList=Array.isArray(raw)?raw:(raw?[raw]:[]);
+    var cards='';
+    grpList.forEach(function(grp,idx){
+      var cnt=(grp.orders||[]).length;
+      var ann=grp.announcement
+        ?('<div style="font-size:.71rem;color:var(--gold);margin-top:5px;background:var(--goldbg);border-radius:6px;padding:5px 8px">📢 '+grp.announcement+'</div>')
+        :'';
+      var jg="joinGroup('"+type+"',"+idx+")";
+      var od="openGroupDetailIdx('"+type+"',"+idx+")";
+      cards+='<div style="background:var(--sur);border:2px solid var(--bdr);border-radius:var(--r2);padding:10px 12px;margin-bottom:7px">'
+        +'<div style="font-size:.78rem;font-weight:700">'+(grp.shopIcon||'')+' '+grp.shopName+'</div>'
+        +'<div style="font-size:.68rem;color:var(--ink2);margin-top:2px">👤 '+grp.hostName+'｜'+cnt+' 人訂購</div>'
+        +ann
+        +'<div style="display:flex;gap:5px;margin-top:8px">'
+        +'<button onclick="'+jg+'" style="flex:1;padding:6px 0;border-radius:7px;border:none;background:var(--dark);color:var(--dktx);font-size:.73rem;font-weight:700;cursor:pointer">＋ 加入點餐</button>'
+        +'<button onclick="'+od+'" style="flex:1;padding:6px 0;border-radius:7px;border:1.5px solid var(--bdr2);background:var(--sur);font-size:.73rem;font-weight:700;cursor:pointer">📋 訂單清單</button>'
+        +'</div></div>';
+    });
+    var lbl=grpList.length?('共 '+grpList.length+' 個團'):(isDr?'手搖飲、咖啡':'便當、定食');
+    var sg="startNewGroup('"+type+"')";
+    rowsHtml+='<div class="tc '+cls+'" style="cursor:default;text-align:left;padding:14px 13px">'
+      +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:'+(grpList.length?'10px':'6px')+'">'
+      +'<span style="font-size:1.5rem">'+ico+'</span>'
+      +'<div><div class="tc-nm" style="text-align:left">'+nm+'</div>'
+      +'<div style="font-size:.67rem;color:var(--ink2)">'+lbl+'</div></div></div>'
+      +cards
+      +'<button onclick="'+sg+'" style="width:100%;padding:8px 0;border-radius:7px;border:2px dashed var(--bdr2);background:transparent;font-size:.76rem;font-weight:700;cursor:pointer;color:var(--ink2);margin-top:'+(grpList.length?'4px':'0')+'">＋ 開新的'+nm+'</button>'
+      +'</div>';
   });
-
-  SHIP_OPTIONS.forEach(s => {
-    const cost = SHIPPING_RATES[s.name] || 0;
-    const btn = document.createElement('div');
-    btn.className = 'pick-btn ship-btn';
-    btn.dataset.name = s.name;
-    btn.innerHTML = `<div class="check-mark">✓</div><div class="btn-label">${s.icon} ${s.name}</div><div class="btn-sub">NT$${cost}</div>`;
-    btn.addEventListener('click', () => toggleShipping(btn, s.name, cost));
-    shippingGrid.appendChild(btn);
-  });
-
-  vendorFilter.addEventListener('change', onVendorChange);
-  modelFilter.addEventListener('change', onModelChange);
-  descFilter.addEventListener('change', onDescChange);
-
-  updateSteps(0);
+  document.getElementById('trow').innerHTML=rowsHtml;
 }
 
-// ===== Dropdown handlers =====
-function onVendorChange() {
-  const vendor = vendorFilter.value;
-  resetFrom('model');
 
-  if (!vendor) { updateSteps(0); return; }
-
-  const models = [...new Set(PRODUCTS.filter(p => p.vendorName === vendor).map(p => p.model))].sort();
-  modelFilter.innerHTML = '<option value="">— 請選擇型號 —</option>';
-  models.forEach(m => {
-    const opt = document.createElement('option');
-    opt.value = m;
-    opt.textContent = m;
-    modelFilter.appendChild(opt);
-  });
-  modelFilter.disabled = false;
-  updateSteps(1);
+// ═══════════════════════════════════════════════
+// MULTI-GROUP NAVIGATION
+// ═══════════════════════════════════════════════
+function startNewGroup(type){
+  // 開新團 → 去選店家
+  S.type=type;
+  S.curGroupIdx=-1; // 新團
+  renderShopSel();
+  go('s-shop');
 }
 
-function onModelChange() {
-  const vendor = vendorFilter.value;
-  const model = modelFilter.value;
-  resetFrom('desc');
-
-  if (!model) { updateSteps(1); return; }
-
-  const descs = [...new Set(
-    PRODUCTS.filter(p => p.vendorName === vendor && p.model === model).map(p => p.desc)
-  )].sort();
-  descFilter.innerHTML = '<option value="">— 請選擇描述 —</option>';
-  descs.forEach(d => {
-    const opt = document.createElement('option');
-    opt.value = d;
-    opt.textContent = d;
-    descFilter.appendChild(opt);
-  });
-  descFilter.disabled = false;
-  updateSteps(2);
+function joinGroup(type, idx){
+  // 加入現有團點餐
+  S.type=type;
+  S.curGroupIdx=idx;
+  const g=S.groups[S.selDate]||{};
+  S.curGroup=(g[type]||[])[idx];
+  if(!S.curGroup){ toast('找不到此團'); return; }
+  S.persons=[{name:'',cart:{},note:''}];
+  S.activePerson=0;
+  S.editingOrderIdx=-1;
+  renderOrder(); go('order');
 }
 
-function onDescChange() {
-  hideResult();
-  if (!descFilter.value) { updateSteps(2); return; }
-  updateSteps(3);
-  tryShowResult();
+function openGroupDetailIdx(type, idx){
+  S.type=type;
+  S.curGroupIdx=idx;
+  const g=S.groups[S.selDate]||{};
+  S.curGroup=(g[type]||[])[idx];
+  if(!S.curGroup){ toast('找不到此團'); return; }
+  renderGroupDetail();
+  go('s-group');
 }
 
-function toggleShipping(btn, name, cost) {
-  if (selectedShipping === name) {
-    selectedShipping = "";
-    selectedShippingCost = 0;
-    btn.classList.remove('selected');
+// legacy（單團進入，保留向後相容）
+function enterType(type){
+  startNewGroup(type);
+}
+function openGroupDetail(type){
+  openGroupDetailIdx(type, 0);
+}
+
+// ═══════════════════════════════════════════════
+// GROUP DETAIL：訂單清單 + 刪除團 + 付款確認
+// ═══════════════════════════════════════════════
+function openGroupDetail(type){
+  // 舊版相容：取第一個團
+  openGroupDetailIdx(type, 0);
+}
+
+function renderGroupDetail(){
+  const grp = Array.isArray(S.curGroup) ? S.curGroup[0] : S.curGroup;
+  if(!grp){ toast('找不到團資料'); return; }
+  S.curGroup = grp;
+  const isDr = S.type==='drink';
+  const orders = grp.orders||[];
+  const paid    = orders.filter(function(o){return o.paid;}).length;
+  const total   = orders.reduce(function(s,o){return s+(o.total||0);},0);
+  const paidAmt = orders.filter(function(o){return o.paid;}).reduce(function(s,o){return s+(o.total||0);},0);
+
+  const grpNum = (S.groups[S.selDate]&&Array.isArray(S.groups[S.selDate][S.type])&&S.groups[S.selDate][S.type].length>1) ? ' #'+(S.curGroupIdx+1) : '';
+  document.getElementById('gd-title').textContent=(isDr?'🧋 飲料團':'🍱 便當團')+grpNum+'訂單';
+  document.getElementById('gd-sub').textContent=grp.shopName+'｜團主 '+grp.hostName;
+
+  // Build orders HTML
+  let ordersHtml = '';
+  if(orders.length===0){
+    ordersHtml = '<div style="color:var(--ink3);text-align:center;padding:24px;font-size:.85rem">尚無人訂購</div>';
   } else {
-    document.querySelectorAll('.ship-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedShipping = name;
-    selectedShippingCost = cost;
+    orders.forEach(function(o,i){
+      const items = (o.items||[]).map(function(it){return it.name+' × '+it.qty;}).join('　');
+      const pmIcon = o.paidMethod==='linepay'?'💚':o.paidMethod==='ipass'?'💳':o.paidMethod==='cash'?'💵':'';
+      const pmTxt  = o.paidMethod?' '+pmIcon+' '+payMethodLabel(o.paidMethod):'';
+      ordersHtml += '<div class="order-card">'
+        +'<div class="oc-top"><span class="oc-name">👤 '+o.name+'</span><span class="oc-total">NT$'+o.total+'</span></div>'
+        +'<div class="oc-items">'+items+'</div>'
+        +(o.note?'<div style="font-size:.72rem;color:var(--ink3);margin-top:3px">📝 '+o.note+'</div>':'')
+        +'<div style="display:flex;gap:6px;margin-top:6px;align-items:center">'
+        +'<button class="oc-paid '+(o.paid?'yes':'no')+'" onclick="togglePaid('+i+')" style="flex:1">'+(o.paid?'✅ 已付款'+pmTxt:'💰 我已付款')+'</button>'
+        +'<button onclick="startEditOrder('+i+')" style="padding:5px 10px;border-radius:7px;border:1.5px solid var(--bdr2);background:var(--sur);font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap">✏️ 修改</button>'
+        +'</div></div>';
+    });
   }
-  tryShowResult();
+
+  const wrap = document.getElementById('gd-wrap');
+  wrap.innerHTML = ''
+    +'<div class="gd-hero '+(isDr?'dr':'fo')+'">'
+      +'<div class="gd-shop">'+(grp.shopIcon||'')+' '+grp.shopName+'</div>'
+      +'<div class="gd-host">👤 團主：'+grp.hostName+'</div>'
+      +(grp.announcement?'<div style="margin-top:7px;font-size:.76rem;opacity:.9">📢 '+grp.announcement+'</div>':'')
+      +'<div class="gd-stats">'
+        +'<div class="gd-stat"><span class="v">'+orders.length+'</span><span class="l">總訂單</span></div>'
+        +'<div class="gd-stat"><span class="v" style="color:var(--grn)">'+paid+'</span><span class="l">已付款</span></div>'
+        +'<div class="gd-stat"><span class="v" style="color:#dc2626">'+(orders.length-paid)+'</span><span class="l">未付款</span></div>'
+        +'<div class="gd-stat"><span class="v">NT$'+total+'</span><span class="l">總金額</span></div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="pay-summary">'
+      +'<div><div class="ps-label">已收款</div><div class="ps-val" style="color:var(--grn)">NT$'+paidAmt+'</div></div>'
+      +'<div style="text-align:right"><div class="ps-label">未收款</div><div class="ps-val" style="color:#dc2626">NT$'+(total-paidAmt)+'</div></div>'
+    +'</div>'
+    +'<div class="sect">訂單明細（所有人可見）</div>'
+    +ordersHtml
+    +'<div class="sect" style="margin-top:16px">操作</div>'
+    +'<button onclick="exportPDF()" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:12px;border-radius:9px;border:2px solid var(--drbdr);background:var(--drbg);color:var(--dr);font-size:.84rem;font-weight:700;cursor:pointer;margin-bottom:8px">📄 匯出訂單 PDF</button>'
+    +'<button class="del-group-btn" onclick="deleteGroup()">🗑 取消此次開團（刪除所有訂單）</button>'
+    +'<div style="font-size:.7rem;color:var(--ink3);text-align:center;margin-top:6px">刪除後無法復原，請確認所有同學已收到通知</div>';
 }
 
-// ===== Show result =====
-function tryShowResult() {
-  const vendor = vendorFilter.value;
-  const model = modelFilter.value;
-  const desc = descFilter.value;
 
-  if (!vendor || !model || !desc || !selectedShipping) {
-    hideResult();
+function togglePaid(orderIdx){
+  const grp=S.curGroup;
+  if(!grp||!grp.orders) return;
+  grp.orders[orderIdx].paid = !grp.orders[orderIdx].paid;
+  saveG();
+  if(GAS_URL) sendGAS({action:'updateOrderPaid',dateKey:S.selDate,type:S.type,groupIdx:S.curGroupIdx,orderIdx,paid:grp.orders[orderIdx].paid});
+  renderGroupDetail();
+  toast(grp.orders[orderIdx].paid?'✅ 已標記付款':'已取消付款狀態');
+}
+
+function deleteGroup(){
+  // 用自製 modal 取代 iOS 不支援的 confirm/prompt
+  const existing = document.getElementById('delete-modal');
+  if(existing) existing.remove();
+  const m = document.createElement('div');
+  m.id = 'delete-modal';
+  m.className = 'cf-modal';
+  m.innerHTML = `
+    <div class="cf-sheet">
+      <div class="cf-title">🗑 確認刪除開團</div>
+      <div class="cf-msg">此操作將清除所有訂單，<b>無法復原</b>。<br>請輸入班級密碼確認：</div>
+      <input class="cf-pw" id="del-pw-input" type="password" placeholder="輸入班級密碼"
+        maxlength="20" onkeydown="if(event.key==='Enter') confirmDelete()">
+      <div class="cf-btns">
+        <button class="btn btn-out" style="flex:1" onclick="document.getElementById('delete-modal').remove()">取消</button>
+        <button class="btn" style="flex:1;background:#dc2626;color:#fff" onclick="confirmDelete()">確認刪除</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+  setTimeout(()=>document.getElementById('del-pw-input')?.focus(), 100);
+}
+
+function confirmDelete(){
+  const pw = document.getElementById('del-pw-input')?.value||'';
+  const input = document.getElementById('del-pw-input');
+  if(pw !== PW){
+    if(input){ input.classList.add('err'); input.value=''; input.placeholder='密碼錯誤，請重試'; setTimeout(()=>input.classList.remove('err'),400); }
     return;
   }
+  document.getElementById('delete-modal')?.remove();
+  const k=S.selDate;
+  if(S.groups[k]?.[S.type]) {
+    S.groups[k][S.type].splice(S.curGroupIdx, 1);
+    if(S.groups[k][S.type].length===0) delete S.groups[k][S.type];
+  }
+  saveG();
+  if(GAS_URL) sendGAS({action:'deleteGroup',dateKey:k,type:S.type,groupIdx:S.curGroupIdx});
+  renderDay();
+  go('day');
+  toast('✅ 已刪除開團');
+}
 
-  // 找到符合的產品（用型號+描述定義價格，不再用顏色）
-  const p = PRODUCTS.find(x =>
-    x.vendorName === vendor &&
-    x.model === model &&
-    x.desc === desc
-  );
+// ═══════════════════════════════════════════════
+// SHOP SELECT
+// ═══════════════════════════════════════════════
+function renderShopSel(){
+  const isDr=S.type==='drink';
+  document.getElementById('shop-t').textContent=isDr?'🧋 選擇飲料店':'🍱 選擇便當餐廳';
+  document.getElementById('shop-s').textContent='輸入關鍵字搜尋 或 瀏覽精選店家';
+  document.getElementById('shop-date').textContent=dlbl(S.selDate);
+  document.getElementById('shop-type-lbl').textContent=isDr?'飲料團':'便當團';
+  document.getElementById('shop-type-ico').textContent=isDr?'🧋':'🍱';
+  // 更新精選按鈕文字
+  const shopCount = getShopList(S.type).length;
+  const pl=document.getElementById('preset-lbl');
+  if(pl) pl.textContent=isDr?`瀏覽精選${shopCount}間飲料店`:`瀏覽精選${shopCount}間便當餐廳`;
+  const pi=document.getElementById('preset-ico');
+  if(pi) pi.textContent=isDr?'🧋':'🍱';
+  const fin=document.getElementById('fin');
+  if(fin) fin.value='';
+  const fdrop=document.getElementById('fdrop');
+  if(fdrop) fdrop.classList.remove('on');
+  S.fuzzyIdx=-1;
+}
 
-  if (!p) { hideResult(); return; }
+// ── 模糊搜尋 ──
+function fuzzy(q){
+  const drop=document.getElementById('fdrop');
+  S.fuzzyIdx=-1;
+  if(!q.trim()){ drop.classList.remove('on'); return; }
+  const list=getShopList(S.type);
+  const hits=list.map((s,i)=>{
+    const itemTxt=(s.menu||[]).map(m=>m.name).join(' ');
+    const nameSc=fScore(q,s.name+s.addr);
+    const itemSc=fScore(q,itemTxt);
+    let matched='';
+    if(itemSc>0&&nameSc===0){
+      const m=(s.menu||[]).find(m=>fScore(q,m.name)>0);
+      if(m) matched=m.name;
+    }
+    return {s,i,sc:nameSc*2+itemSc,matched};
+  }).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,10);
+  if(!hits.length){ drop.classList.remove('on'); return; }
+  drop.innerHTML=hits.map(({s,i,matched})=>{
+    const sub=matched?`含品項「${hilight(matched,q)}」`:s.addr;
+    return `<div class="fitem" onclick="pickShop(${i})">
+      <div class="fi-nm">${hilight(s.name,q)} ${s.icon}</div>
+      <div class="fi-ad">${sub}</div>
+    </div>`;
+  }).join('');
+  drop.classList.add('on');
+}
+function fScore(q,t){ let sc=0,last=-1; for(const c of q){ const i=t.indexOf(c,last+1); if(i>=0){sc+=1+(i===last+1?1:0);last=i;} } return sc; }
+function hilight(t,q){ let r=t; for(const c of new Set(q)) r=r.replaceAll(c,`<span class="fhi">${c}</span>`); return r; }
+function fuzzyKey(e){
+  const its=[...document.querySelectorAll('.fitem')];
+  if(!its.length) return;
+  if(e.key==='ArrowDown'){e.preventDefault();S.fuzzyIdx=Math.min(S.fuzzyIdx+1,its.length-1);its.forEach((x,i)=>x.classList.toggle('hi',i===S.fuzzyIdx));its[S.fuzzyIdx]?.scrollIntoView({block:'nearest'});}
+  else if(e.key==='ArrowUp'){e.preventDefault();S.fuzzyIdx=Math.max(S.fuzzyIdx-1,0);its.forEach((x,i)=>x.classList.toggle('hi',i===S.fuzzyIdx));}
+  else if(e.key==='Enter'){e.preventDefault();if(S.fuzzyIdx>=0)its[S.fuzzyIdx].click();}
+  else if(e.key==='Escape')document.getElementById('fdrop').classList.remove('on');
+}
 
-  const isTWD = p.currency === 'TWD';
-  const isTax = p.priceType === '含稅';
-  const shipIcon = (SHIP_OPTIONS.find(s => s.name === selectedShipping) || {}).icon || '';
-  const totalTWD = p.baseTWD + selectedShippingCost;
+// ── 全店搜尋（跨類型 + 品項）──
+function globalFuzzy(q){
+  const drop=document.getElementById('gfdrop');
+  S.gFuzzyIdx=-1;
+  if(!q.trim()){ drop.classList.remove('on'); return; }
+  // 把飲料和便當合併,並標註類型
+  const drinks=getShopList('drink').map((s,i)=>({s,i,type:'drink'}));
+  const foods =getShopList('food' ).map((s,i)=>({s,i,type:'food' }));
+  const all=[...drinks,...foods];
+  // 對每家店:店名+地址 加上 品項串起來作為搜尋目標
+  const hits=all.map(({s,i,type})=>{
+    const itemTxt=(s.menu||[]).map(m=>m.name).join(' ');
+    const nameSc=fScore(q,s.name+s.addr);
+    const itemSc=fScore(q,itemTxt);
+    // 店名命中加權,品項命中其次
+    const sc=nameSc*2+itemSc;
+    let matched='';
+    if(itemSc>0&&nameSc===0){
+      // 找出最短的命中品項顯示
+      const m=(s.menu||[]).find(m=>fScore(q,m.name)>0);
+      if(m) matched=m.name;
+    }
+    return {s,i,type,sc,matched};
+  }).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,12);
+  if(!hits.length){
+    drop.innerHTML='<div class="fitem" style="color:var(--ink3);cursor:default">沒找到符合的店家或品項</div>';
+    drop.classList.add('on');
+    return;
+  }
+  drop.innerHTML=hits.map(({s,i,type,matched})=>{
+    const badge=type==='drink'?'<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:8px;font-size:.65rem;font-weight:700;margin-left:4px">飲料</span>':'<span style="background:#fee2e2;color:#991b1b;padding:1px 6px;border-radius:8px;font-size:.65rem;font-weight:700;margin-left:4px">便當</span>';
+    const sub=matched?`含品項「${hilight(matched,q)}」`:s.addr;
+    return `<div class="fitem" onclick="pickShopGlobal('${type}',${i})">
+      <div class="fi-nm">${hilight(s.name,q)} ${s.icon||''}${badge}</div>
+      <div class="fi-ad">${sub}</div>
+    </div>`;
+  }).join('');
+  drop.classList.add('on');
+}
+function globalFuzzyKey(e){
+  const its=[...document.querySelectorAll('#gfdrop .fitem')];
+  if(!its.length) return;
+  if(e.key==='ArrowDown'){e.preventDefault();S.gFuzzyIdx=Math.min((S.gFuzzyIdx??-1)+1,its.length-1);its.forEach((x,i)=>x.classList.toggle('hi',i===S.gFuzzyIdx));its[S.gFuzzyIdx]?.scrollIntoView({block:'nearest'});}
+  else if(e.key==='ArrowUp'){e.preventDefault();S.gFuzzyIdx=Math.max((S.gFuzzyIdx??0)-1,0);its.forEach((x,i)=>x.classList.toggle('hi',i===S.gFuzzyIdx));}
+  else if(e.key==='Enter'){e.preventDefault();if(S.gFuzzyIdx>=0)its[S.gFuzzyIdx].click();}
+  else if(e.key==='Escape')document.getElementById('gfdrop').classList.remove('on');
+}
+function pickShopGlobal(type,idx){
+  S.type=type;
+  const list=getShopList(type);
+  const shop=list[idx];
+  if(!shop) return;
+  S.shopSel=shop;
+  S.aiMenu=(shop.menu||[]).map(m=>({name:m.name,price:m.price,cat:m.cat||''}));
+  S.hostName='';S.payMethod=null;S.payLink='';S.ipassLink='';S.payQr=null;S.announcement='';
+  S.setupStep=1;
+  const drop=document.getElementById('gfdrop');
+  if(drop) drop.classList.remove('on');
+  const gfin=document.getElementById('gfin');
+  if(gfin) gfin.value='';
+  renderSetup();
+  go('s-setup');
+}
+document.addEventListener('click',e=>{ if(!e.target.closest('#gfwrap')) document.getElementById('gfdrop')?.classList.remove('on'); });
 
-  let typeClass, typeLabel;
-  if (isTWD) {
-    typeClass = 'twd';
-    typeLabel = '台幣直接報價';
-  } else if (isTax) {
-    typeClass = 'tax';
-    typeLabel = '含稅價格';
-  } else {
-    typeClass = 'notax';
-    typeLabel = '未含稅價格';
+// ═══════════════════════════════════════════════
+// 📸 菜單照片上傳 + Claude Vision AI 辨識
+// ═══════════════════════════════════════════════
+async function handleMenuImg(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  // Preview image
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    const dataUrl = ev.target.result;
+    const preview = document.getElementById('menu-upload-preview');
+    const zone = document.getElementById('menu-upload-zone');
+    if(preview) preview.innerHTML = `<img src="${dataUrl}" alt="菜單">`;
+    if(zone) zone.classList.add('has');
+
+    // Extract base64 (remove prefix)
+    const base64 = dataUrl.split(',')[1];
+    const mimeType = file.type || 'image/jpeg';
+
+    // Show OCR progress
+    const ocrBox = document.getElementById('ocr-box');
+    const ocrSteps = document.getElementById('ocr-steps');
+    if(ocrBox) ocrBox.classList.add('on');
+
+    function setOcrSteps(steps){
+      if(ocrSteps) ocrSteps.innerHTML = steps.map(s =>
+        `<div class="ocr-step ${s.st}"><span class="dot"></span>${s.txt}</div>`
+      ).join('');
+    }
+
+    try{
+      setOcrSteps([{st:'load',txt:'AI 正在辨識菜單照片…'}]);
+
+      if(!GAS_URL){
+        setOcrSteps([{st:'',txt:'⚠️ 尚未設定 GAS_URL，無法使用拍照辨識'}]);
+        return;
+      }
+      const resp = await fetch(GAS_URL,{
+        method:'POST',
+        headers:{'Content-Type':'text/plain'},  // 用 text/plain 避免 GAS CORS preflight
+        body: JSON.stringify({
+          action:'recognizeMenu',
+          mimeType: mimeType,
+          imageBase64: base64
+        })
+      });
+
+      if(!resp.ok){
+        const errTxt = await resp.text();
+        throw new Error(`HTTP ${resp.status}`);
+      }
+
+      setOcrSteps([{st:'done',txt:'辨識完成'},{st:'load',txt:'解析菜單資料…'}]);
+
+      const data = await resp.json();
+      if(!data.success) throw new Error(data.error || '辨識失敗');
+      const rawText = data.rawText || '';
+      if(!rawText) throw new Error('辨識失敗：沒有回傳內容');
+
+      // Parse JSON（即使被截斷也搶救品項）
+      let result = {shopName:'', items:[]};
+      const cleaned = rawText.replace(/```json/g,'').replace(/```/g,'').trim();
+      try{
+        const s = cleaned.indexOf('{'), en = cleaned.lastIndexOf('}');
+        if(s>=0 && en>s) result = JSON.parse(cleaned.slice(s,en+1));
+      }catch(pe){
+        console.warn('full parse fail, fallback to item extraction:', rawText.slice(0,200));
+        // 抓 shopName
+        const nameMatch = cleaned.match(/"shopName"\s*:\s*"([^"]*)"/);
+        if(nameMatch) result.shopName = nameMatch[1];
+        // 用 regex 把每個 {name,price,cat} 物件挑出來
+        const itemRegex = /\{\s*"name"\s*:\s*"([^"]+)"\s*,\s*"price"\s*:\s*(\d+)\s*,\s*"cat"\s*:\s*"([^"]*)"\s*\}/g;
+        const items = [];
+        let m;
+        while((m = itemRegex.exec(cleaned)) !== null){
+          items.push({name:m[1], price:parseInt(m[2]), cat:m[3]});
+        }
+        result.items = items;
+      }
+
+      const items = (result.items||[])
+        .map(it=>({
+          name: String(it.name||'').trim(),
+          price: parseInt(String(it.price||'0').replace(/[^\d]/g,''))||0,
+          cat: String(it.cat||'').trim()
+        }))
+        .filter(it => it.name && it.name.length > 0);
+
+      if(items.length === 0){
+        setOcrSteps([{st:'',txt:'⚠️ 無法辨識品項，請確認照片清晰度'}]);
+        return;
+      }
+
+      setOcrSteps([
+        {st:'done',txt:'辨識完成'},
+        {st:'done',txt:`✅ 辨識到 ${items.length} 個品項`}
+      ]);
+
+      // 跳出 modal 讓使用者確認店名 + 決定是否存入店家資料庫
+      const detectedName = result.shopName || '';
+      saveOcrShopModal(detectedName, items);
+
+    }catch(err){
+      console.error('OCR error:', err);
+      setOcrSteps([{st:'',txt:'⚠️ ' + (err.message||'辨識失敗')}]);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+document.addEventListener('click',e=>{ if(!e.target.closest('#fwrap')) document.getElementById('fdrop')?.classList.remove('on'); });
+
+// ── OCR 辨識後儲存店家 modal ──
+function saveOcrShopModal(detectedName, items){
+  const existing = document.getElementById('save-shop-modal');
+  if(existing) existing.remove();
+  const isDr = S.type==='drink';
+  const defaultIcon = isDr ? '🧋' : '🍱';
+  const m = document.createElement('div');
+  m.id = 'save-shop-modal';
+  m.className = 'cf-modal';
+  m.innerHTML = `
+    <div class="cf-sheet" style="max-width:380px">
+      <div class="cf-title">📸 辨識完成</div>
+      <div class="cf-msg">辨識到 <b>${items.length}</b> 個品項。請確認店家資訊：</div>
+      <div style="margin-top:12px">
+        <div style="font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:4px">店名 <span style="color:#dc2626">*</span></div>
+        <input id="ocr-name" class="fin" style="padding-left:14px;margin-bottom:10px" placeholder="例：五十嵐 成大店" value="${(detectedName||'').replace(/"/g,'&quot;')}">
+        <div style="font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:4px">地址（選填）</div>
+        <input id="ocr-addr" class="fin" style="padding-left:14px;margin-bottom:10px" placeholder="例：台南市東區育樂街79號">
+        <div style="font-size:.75rem;font-weight:700;color:var(--ink2);margin-bottom:4px">電話（選填）</div>
+        <input id="ocr-tel" class="fin" style="padding-left:14px;margin-bottom:10px" placeholder="例：06-208-8650">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+        <button id="ocr-save-go" class="btn btn-dk btn-full">💾 儲存到店家清單 + 開始開團</button>
+        <button id="ocr-just-use" class="btn btn-out btn-full">🚀 只用這次，不儲存</button>
+        <button id="ocr-back" style="background:#fef3c7;border:2px solid #fbbf24;color:#92400e;border-radius:10px;padding:11px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif">← 返回選擇其他店家</button>
+        <button id="ocr-cancel" style="background:transparent;border:none;color:var(--ink3);padding:8px;font-size:.78rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif">取消（保留目前辨識結果）</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+
+  function close(){ m.remove(); }
+  function getName(){ return document.getElementById('ocr-name').value.trim(); }
+
+  document.getElementById('ocr-save-go').onclick = async ()=>{
+    const name = getName();
+    if(!name){ toast('請輸入店名'); return; }
+    const addr = document.getElementById('ocr-addr').value.trim();
+    const tel  = document.getElementById('ocr-tel').value.trim();
+    close();
+    toast('⏳ 儲存中…');
+    try{
+      const resp = await fetch(GAS_URL,{
+        method:'POST',
+        headers:{'Content-Type':'text/plain'},
+        body: JSON.stringify({
+          action:'saveShop',
+          type: S.type, name, addr, tel, icon: defaultIcon,
+          items: items.map(it=>({name:it.name, price:it.price, cat:it.cat}))
+        })
+      });
+      const d = await resp.json();
+      if(!d.success) throw new Error(d.error||'儲存失敗');
+      toast(`✅ 已儲存 ${d.added} 項到店家清單`);
+      // 重新同步菜單
+      await syncMenus();
+    }catch(err){
+      console.error('saveShop error:', err);
+      toast('⚠️ 儲存失敗：' + err.message);
+    }
+    // 不管成功失敗都進入開團流程
+    S.shopSel = {name, addr, tel, icon: defaultIcon};
+    S.aiMenu = items;
+    S.hostName=''; S.payMethod=null; S.payLink=''; S.ipassLink=''; S.payQr=null; S.announcement='';
+    S.setupStep = 1;
+    renderSetup();
+    go('s-setup');
+  };
+
+  document.getElementById('ocr-just-use').onclick = ()=>{
+    const name = getName() || '自訂店家（上傳菜單）';
+    close();
+    S.shopSel = {name, addr:'', tel:'', icon: defaultIcon};
+    S.aiMenu = items;
+    S.hostName=''; S.payMethod=null; S.payLink=''; S.ipassLink=''; S.payQr=null; S.announcement='';
+    S.setupStep = 1;
+    renderSetup();
+    go('s-setup');
+  };
+
+  document.getElementById('ocr-cancel').onclick = close;
+
+  document.getElementById('ocr-back').onclick = ()=>{
+    close();
+    // 清掉辨識結果跳回選店畫面
+    const preview = document.getElementById('menu-upload-preview');
+    const zone = document.getElementById('menu-upload-zone');
+    const ocrBox = document.getElementById('ocr-box');
+    if(preview) preview.innerHTML = '<div style="font-size:1.8rem">📷</div><div class="upload-menu-txt">點擊上傳菜單照片（黑板/紙本/螢幕截圖皆可）</div>';
+    if(zone) zone.classList.remove('has');
+    if(ocrBox) ocrBox.classList.remove('on');
+    const fin = document.getElementById('menu-img-input');
+    if(fin) fin.value = '';
+    go('s-shop');
+  };
+}
+
+// ── 刪除店家 (從 s-presets 呼叫) ──
+async function deletePresetShop(idx){
+  const list = getShopList(S.type);
+  const shop = list[idx];
+  if(!shop) return;
+  if(!confirm(`確定要刪除「${shop.name}」？\n此店家的所有品項會從資料庫移除,無法復原。`)) return;
+  toast('⏳ 刪除中…');
+  try{
+    const resp = await fetch(GAS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'deleteShop', type: S.type, name: shop.name})
+    });
+    const d = await resp.json();
+    if(!d.success) throw new Error(d.error||'刪除失敗');
+    toast(`✅ 已刪除(${d.deleted} 列)`);
+    await syncMenus();
+    goPresets();
+  }catch(err){
+    toast('⚠️ 刪除失敗：'+err.message);
+  }
+}
+
+// ── 重新命名店家 ──
+async function renamePresetShop(idx){
+  const list = getShopList(S.type);
+  const shop = list[idx];
+  if(!shop) return;
+  const newName = prompt(`輸入新的店家名稱：`, shop.name);
+  if(!newName || newName.trim()===''||newName.trim()===shop.name) return;
+  toast('⏳ 更新中…');
+  try{
+    const resp = await fetch(GAS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'renameShop', type: S.type, oldName: shop.name, newName: newName.trim()})
+    });
+    const d = await resp.json();
+    if(!d.success) throw new Error(d.error||'更新失敗');
+    toast(`✅ 已改名(${d.renamed} 列)`);
+    await syncMenus();
+    goPresets();
+  }catch(err){
+    toast('⚠️ 改名失敗：'+err.message);
+  }
+}
+
+// ── 切換管理模式 ──
+function togglePresetsManage(){
+  S.presetsManage = !S.presetsManage;
+  goPresets();
+}
+
+function pickShop(idx){
+  const list=getShopList(S.type);
+  const shop=list[idx];
+  S.shopSel=shop;
+  // ★ 直接帶入內建菜單，零 API 費用、即時顯示
+  S.aiMenu=(shop.menu||[]).map(m=>({name:m.name,price:m.price,cat:m.cat||''}));
+  S.hostName=''; S.payMethod=null; S.payLink=''; S.ipassLink=''; S.payQr=null; S.announcement='';
+  S.setupStep=1; // 直接跳菜單確認，跳過 loading
+  const drop=document.getElementById('fdrop');
+  if(drop) drop.classList.remove('on');
+  const fin=document.getElementById('fin');
+  if(fin) fin.value='';
+  renderSetup();
+  go('s-setup');
+}
+
+// ═══════════════════════════════════════════════
+// SETUP SCREEN  步驟：0=AI跑 → 1=菜單+填名字 → 2=付款
+// ═══════════════════════════════════════════════
+function setupBack(){
+  go('s-shop');
+}
+
+function renderSetup(){
+  const isDr=S.type==='drink';
+  document.getElementById('setup-s').textContent=`${isDr?'🧋 飲料團':'🍱 便當團'}｜${S.shopSel?.name||''}`;
+  const w=document.getElementById('setup-wrap');
+  if(S.setupStep===0) renderSetup0(w);
+  else if(S.setupStep===1) renderSetup1(w);
+  else renderSetup2(w);
+}
+
+// ── Setup Step 0: AI 跑中 ──
+function renderSetup0(w){
+  document.getElementById('setup-t').textContent='AI 抓取菜單中…';
+  w.innerHTML=`
+    <div class="ssb">
+      <div class="ssb-ico">${S.shopSel?.icon||'🏪'}</div>
+      <div class="ssb-info">
+        <div class="ssb-nm">${S.shopSel?.name}</div>
+        <div class="ssb-ad">${S.shopSel?.addr||''}</div>
+      </div>
+      <button class="ssb-chg" onclick="go('s-shop')">換店家</button>
+    </div>
+    <div class="aibox">
+      <div class="ai-shop">
+        <span class="spin"></span> 正在搜尋「${S.shopSel?.name}」菜單…
+      </div>
+      <div class="ai-steps" id="ai-steps">
+        <div class="aist load"><span class="dot"></span>連線至 Google AI 搜尋服務…</div>
+      </div>
+    </div>
+    <div class="ibox i-bl">💡 AI 正在用 Google 搜尋此店家的菜單資訊，稍候片刻</div>`;
+}
+
+// ── Setup Step 1: 菜單確認 + 填團主姓名 ──
+function renderSetup1(w){
+  document.getElementById('setup-t').textContent='確認菜單 & 開團資訊';
+  w.innerHTML=`
+    <div class="ssb">
+      <div class="ssb-ico">${S.shopSel?.icon||'🏪'}</div>
+      <div class="ssb-info">
+        <div class="ssb-nm">${S.shopSel?.name}</div>
+        <div class="ssb-ad">${S.shopSel?.addr||''}</div>
+      </div>
+      <button class="ssb-chg" onclick="go('s-shop')">換店家</button>
+    </div>
+
+    ${S.aiMenu.length===0?'<div class="ibox i-wa">⚠️ 未自動取得菜單，請手動新增品項</div>':''}
+
+    <div class="sect">菜單品項（共 ${S.aiMenu.length} 項，可增刪）</div>
+    <div class="mlist" id="mlist">${renderMItems()}</div>
+
+    <div class="sect">新增品項</div>
+    <div class="addrow">
+      <input id="ni-n" placeholder="品項名稱">
+      <input id="ni-p" type="number" placeholder="價格">
+      <input id="ni-c" placeholder="分類">
+      <button class="btn btn-gold btn-sm" onclick="addItem()">＋</button>
+    </div>
+
+    <div class="sect" style="margin-top:16px">團主姓名</div>
+    <input class="fin" style="padding-left:14px;margin-bottom:4px" id="h-nm" placeholder="請輸入您的姓名" value="${S.hostName||''}">
+
+    <div class="sect" style="margin-top:14px">📢 開團公告（選填）</div>
+    <textarea class="fin" style="padding-left:14px;resize:none;height:70px;margin-bottom:4px" id="h-ann"
+      placeholder="說明開團原因、截止時間、特殊注意事項…&#10;例如：今天午餐一起訂五十嵐！12:00截止">${S.announcement||''}</textarea>
+    <div style="font-size:.68rem;color:var(--ink3);margin-bottom:4px">💡 有填寫才會顯示給同學看</div>
+
+    <button class="btn btn-dk btn-full mt12" onclick="finishSetup()">
+      🎉 完成開團！
+    </button>`;
+}
+
+function renderMItems(){
+  return S.aiMenu.map((item,i)=>
+    `<div class="mi">
+      <div class="mi-info"><div class="mi-nm">${item.name}</div><div class="mi-cat">${item.cat||''}</div></div>
+      <div class="mi-p">NT$${item.price}</div>
+      <button class="mi-del" onclick="delItem(${i})">✕</button>
+    </div>`
+  ).join('')||'<div style="color:var(--ink3);font-size:.8rem;padding:6px 0">尚無品項，請手動新增</div>';
+}
+
+function refreshMList(){
+  const el=document.getElementById('mlist');
+  if(el) el.innerHTML=renderMItems();
+  // update count
+  const sec=document.querySelector('#setup-wrap .sect');
+  if(sec) sec.textContent=`菜單品項（共 ${S.aiMenu.length} 項，可增刪）`;
+}
+
+function delItem(i){ S.aiMenu.splice(i,1); refreshMList(); }
+function addItem(){
+  const n=document.getElementById('ni-n').value.trim();
+  const p=parseInt(document.getElementById('ni-p').value)||0;
+  const c=document.getElementById('ni-c').value.trim();
+  if(!n||!p){toast('請填寫名稱和價格');return;}
+  S.aiMenu.push({name:n,price:p,cat:c});
+  document.getElementById('ni-n').value='';
+  document.getElementById('ni-p').value='';
+  document.getElementById('ni-c').value='';
+  refreshMList();
+}
+
+function finishSetup(){
+  S.hostName=document.getElementById('h-nm')?.value.trim()||'';
+  S.announcement=document.getElementById('h-ann')?.value.trim()||'';
+  if(!S.hostName){toast('請填寫團主姓名');return;}
+  if(!S.aiMenu.length){toast('請至少新增一個菜單品項');return;}
+  // 直接建團,不需付款設定 (3 種付款方式內建,由點餐人下單後自選)
+  S.payMethod='all'; S.payLink=''; S.ipassLink='';
+  doCreate();
+}
+
+// ── Setup Step 2: 已停用 (保留函式避免舊程式呼叫出錯) ──
+function renderSetup2(w){ doCreate(); }
+
+function handleQr(e){ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=v=>{S.payQr=v.target.result;renderSetup();}; r.readAsDataURL(f); }
+
+// ═══════════════════════════════════════════════
+// AI MENU FETCH  ← 核心修正
+// ═══════════════════════════════════════════════
+async function runAI(){
+  const shop = S.shopSel;
+  const isDr = S.type === 'drink';
+
+  function setSteps(steps){
+    const el = document.getElementById('ai-steps');
+    if(el) el.innerHTML = steps.map(s =>
+      `<div class="aist ${s.st}"><span class="dot"></span>${s.txt}</div>`
+    ).join('');
   }
 
-  const sym = p.currency === 'USD' ? '$' : p.currency === 'CNY' ? '¥' : 'NT$';
-
-  let priceRows = '';
-  if (isTWD) {
-    // 台幣：直接顯示單價，不做匯率換算
-    priceRows = `
-      <div class="price-row">
-        <span class="label">單價 (TWD)</span>
-        <span class="value">NT$${num(p.unitPrice)}</span>
-      </div>`;
-  } else if (isTax) {
-    // CNY/USD 含稅：顯示含稅 + 未含稅
-    priceRows = `
-      <div class="price-row">
-        <span class="label">含稅單價 (${p.currency})</span>
-        <span class="value">${sym}${num(p.unitPrice)}</span>
-      </div>
-      <div class="price-row">
-        <span class="label">未含稅單價 (${p.currency}) <span class="tag notax">自動換算</span></span>
-        <span class="value">${sym}${num(p.unitPriceNoTax)}</span>
-      </div>`;
-  } else {
-    // CNY/USD 未含稅
-    priceRows = `
-      <div class="price-row">
-        <span class="label">未含稅單價 (${p.currency})</span>
-        <span class="value">${sym}${num(p.unitPrice)}</span>
-      </div>`;
+  // ★ 改成呼叫 GAS（伺服器端），GAS 再去呼叫 Anthropic API
+  // 這樣完全沒有 CORS 問題
+  if(!GAS_URL){
+    setSteps([{st:'',txt:'⚠️ 未設定 GAS_URL，請手動新增品項'}]);
+    S.aiMenu = [];
+    await new Promise(r=>setTimeout(r,800));
+    S.setupStep = 1; renderSetup(); return;
   }
 
-  resultArea.innerHTML = `
-  <div class="result-section">
-    <div class="result-title ${typeClass}">
-      <span class="tag ${typeClass}" style="background:rgba(255,255,255,.2);color:#fff;">${typeLabel}</span>
-      ${p.vendorName} — ${p.model}
+  try{
+    setSteps([{st:'load',txt:`透過伺服器搜尋「${shop.name}」菜單…`}]);
+
+    const url = `${GAS_URL}?action=getMenu&shop=${encodeURIComponent(shop.name)}&type=${S.type}`;
+    const resp = await fetch(url);
+
+    if(!resp.ok) throw new Error(`GAS HTTP ${resp.status}`);
+
+    const data = await resp.json();
+
+    if(!data.success) throw new Error(data.error || 'GAS 回傳錯誤');
+
+    S.aiMenu = (data.items || []).slice(0, 20);
+    if(data.shopName) S.shopSel.name = data.shopName;
+
+    setSteps([
+      {st:'done',txt:'搜尋完成'},
+      {st:'done',txt:`✅ 找到 ${S.aiMenu.length} 個品項`}
+    ]);
+    await new Promise(r=>setTimeout(r,700));
+
+  }catch(err){
+    console.error('runAI error:', err.message);
+    const el = document.getElementById('ai-steps');
+    if(el) el.innerHTML = `
+      <div class="aist"><span class="dot"></span>⚠️ ${(err.message||'搜尋失敗').slice(0,80)}</div>
+      <div class="aist" style="color:rgba(245,240,232,.38)">可在下方手動新增品項</div>`;
+    S.aiMenu = [];
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  S.setupStep = 1; renderSetup();
+}
+
+
+// ═══════════════════════════════════════════════
+// CREATE GROUP
+// ═══════════════════════════════════════════════
+async function doCreate(){
+  // 不再需要團主填付款帳號:三種付款方式內建,由點餐人自選
+  S.payMethod='all'; S.payLink=''; S.ipassLink='';
+
+  const k=S.selDate;
+  if(!S.groups[k]) S.groups[k]={};
+  if(!S.groups[k][S.type]) S.groups[k][S.type]=[];
+  const grp={
+    type:S.type, hostName:S.hostName, announcement:S.announcement||'',
+    shopName:S.shopSel.name, shopAddr:S.shopSel.addr, shopIcon:S.shopSel.icon||'🏪', shopTel:S.shopSel.tel||'',
+    menu:S.aiMenu, payMethod:S.payMethod, payLink:S.payLink, ipassLink:S.ipassLink||'', payQr:'',
+    orders:[], createdAt:new Date().toISOString()
+  };
+  S.groups[k][S.type].push(grp); saveG();
+  S.curGroupIdx = S.groups[k][S.type].length - 1;
+
+  if(GAS_URL){
+    toast('⏳ 同步到雲端…');
+    const r = await sendGAS({action:'createGroup',dateKey:k,type:S.type,groupIdx:S.curGroupIdx,group:{...grp,payQr:''}});
+    if(!r.success){
+      toast('⚠️ 雲端同步失敗,本地已儲存');
+    } else {
+      toast('🎉 開團成功！');
+    }
+  } else {
+    toast('🎉 開團成功！');
+  }
+  renderDay();
+  go('day');
+}
+
+// ═══════════════════════════════════════════════
+// ORDER
+// ═══════════════════════════════════════════════
+// ── 進入點餐頁：先選人 ──
+function renderOrder(){
+  const grp=S.curGroup, isDr=S.type==='drink';
+  document.getElementById('ord-t').textContent=isDr?'🧋 點飲料':'🍱 點便當';
+  document.getElementById('ord-s').textContent=grp.shopName;
+
+  // 防護：若 curGroup 意外是陣列，取第一個
+  if(Array.isArray(S.curGroup)) S.curGroup = S.curGroup[0];
+  if(!S.curGroup){ toast('找不到團資料'); go('day'); return; }
+  // 若是修改模式，直接進修改介面
+  if(S.editingOrderIdx >= 0){ renderEditOrder(); return; }
+
+  // 初始化第一個人
+  if(S.persons.length === 0){
+    S.persons = [{ name:'', cart:{}, note:'' }];
+    S.activePerson = 0;
+  }
+
+  renderOrderPage();
+}
+
+function renderOrderPage(){
+  const grp=S.curGroup, isDr=S.type==='drink';
+  const wrap=document.getElementById('ord-wrap');
+  const p=S.persons[S.activePerson];
+
+  // Person tabs
+  const tabs=S.persons.map((person,i)=>{
+    const hasItem=Object.values(person.cart||{}).some(v=>v.length>0);
+    const label=person.name||`第${i+1}人`;
+    return `<button class="opt ${i===S.activePerson?'active':''} ${hasItem?'has-item':''}"
+      onclick="switchPerson(${i})">${label}${hasItem?' ✓':''}</button>`;
+  }).join('');
+
+  wrap.innerHTML=`
+    <div class="ohero ${isDr?'dr':'fo'}">
+      <div class="oh-shop">${grp.shopIcon||''} ${grp.shopName}</div>
+      <div class="oh-host">👤 團主：${grp.hostName}</div>
+      <div class="oh-cnt">已有 ${(grp.orders||[]).length} 人訂購</div>
+      ${grp.announcement?'<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.15);font-size:.78rem;line-height:1.65">📢 '+grp.announcement+'</div>':''}
     </div>
-    <div class="result-body">
-      <div class="product-info">
-        <div class="model-name">${p.model}</div>
-        <div class="desc">${p.desc}</div>
-      </div>
-      ${priceRows}
-      <div class="price-row">
-        <span class="label">台幣基礎成本</span>
-        <span class="value">NT$${p.baseTWD.toLocaleString('zh-TW')}</span>
-      </div>
-      <div class="price-row shipping">
-        <span class="label">運費（${shipIcon} ${selectedShipping}）</span>
-        <span class="value">NT$${selectedShippingCost.toLocaleString('zh-TW')}</span>
-      </div>
-      <div class="price-row total">
-        <span class="label">台幣總成本</span>
-        <span class="value">$${totalTWD.toLocaleString('zh-TW')}</span>
-      </div>
-      ${p.note ? `<div class="note-badge">📌 ${p.note}</div>` : ''}
+
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:12px">
+      <div class="order-person-tab" id="person-tabs" style="flex:1">${tabs}</div>
+      <button class="add-person-btn" onclick="addPerson()">＋幫人點</button>
     </div>
+
+    <div class="sect">👤 姓名</div>
+    <input class="fin" style="padding-left:14px;margin-bottom:14px" id="ord-nm"
+      placeholder="輸入姓名（必填）"
+      value="${p?.name||''}"
+      oninput="S.persons[S.activePerson].name=this.value;updatePersonTab(${S.activePerson})">
+
+    <div class="sect">選擇品項</div>
+    <div class="olist" id="olist"></div>
+
+    <div id="cart-summary" style="margin-top:8px"></div>
+
+    <div class="sect">備註</div>
+    <textarea class="fin" style="padding-left:14px;resize:none;height:48px" id="ord-note"
+      placeholder="其他特殊需求…"
+      onchange="S.persons[S.activePerson].note=this.value">${p?.note||''}</textarea>
+  `;
+  renderOList();
+  renderCartSummary();
+}
+
+function updatePersonTab(idx){
+  const tabs=document.getElementById('person-tabs');
+  if(!tabs) return;
+  tabs.innerHTML=S.persons.map((p,i)=>{
+    const hasItem=Object.values(p.cart||{}).some(v=>v.length>0);
+    const label=p.name||`第${i+1}人`;
+    return `<button class="opt ${i===S.activePerson?'active':''} ${hasItem?'has-item':''}"
+      onclick="switchPerson(${i})">${label}${hasItem?' ✓':''}</button>`;
+  }).join('')+'<button class="add-person-btn" onclick="addPerson()">＋幫人點</button>';
+}
+
+function addPerson(){
+  S.persons.push({ name:'', cart:{}, note:'' });
+  S.activePerson = S.persons.length - 1;
+  renderOrderPage();
+}
+
+function switchPerson(idx){
+  // Save current note
+  const note = document.getElementById('ord-note')?.value||'';
+  S.persons[S.activePerson].note = note;
+  S.activePerson = idx;
+  renderOrderPage();
+}
+
+// cart[itemIdx] = array of {sugar, ice} per cup
+const SUGAR_OPTS=['全糖','少糖','半糖','微糖','無糖'];
+const ICE_OPTS  =['全冰','少冰','微冰','去冰','溫熱'];
+let _pendingItemIdx=-1; // which item is being configured in modal
+
+function renderOList(){
+  const menu=S.curGroup.menu||[];
+  const cart=S.persons[S.activePerson]?.cart||{};
+  const el=document.getElementById('olist'); if(!el) return;
+  const isDrink=S.type==='drink';
+  el.innerHTML=menu.map((item,i)=>{
+    const cups=cart[i]||[];
+    const q=cups.length;
+    return `<div class="oi ${q>0?'sel':''}" id="oi-${i}">
+      <div class="oi-info">
+        <div class="oi-nm">${item.name}</div>
+        <div class="oi-cat">${item.cat||''}</div>
+      </div>
+      <div class="oi-right">
+        <div class="oi-p">NT$${item.price}</div>
+        <div class="qrow">
+          <button class="qbtn m" onclick="removeCup(${i})">−</button>
+          <span class="qnum" id="qn-${i}">${q}</span>
+          <button class="qbtn p" onclick="${isDrink?"openCupModal("+i+")":"addCupDirect("+i+")"}">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:var(--ink3);text-align:center;padding:16px;font-size:.8rem">尚無品項</div>';
+  updFbar();
+}
+
+// 飲料：每加一杯開啟甜度/冰塊 modal
+function openCupModal(itemIdx){
+  _pendingItemIdx=itemIdx;
+  const item=S.curGroup.menu[itemIdx];
+  // Create modal
+  const existing=document.getElementById('cup-modal');
+  if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='cup-modal'; modal.className='modal-overlay';
+  modal.innerHTML=`
+    <div class="modal-sheet">
+      <div class="modal-title">☕ ${item.name}</div>
+      <div class="modal-sub">NT$${item.price}｜請選擇甜度和冰塊</div>
+      <div class="opt-group">
+        <div class="opt-group-label">🍬 甜度</div>
+        <div class="opt-chips" id="sugar-chips">
+          ${SUGAR_OPTS.map(function(s){return '<button class="chip '+(s==='半糖'?'sel':'')+'" onclick="pickChip(this,\'sugar-chips\')">'+ s+'</button>';}).join('')}
+        </div>
+      </div>
+      <div class="opt-group">
+        <div class="opt-group-label">🧊 冰塊</div>
+        <div class="opt-chips" id="ice-chips">
+          ${ICE_OPTS.map(function(s){return '<button class="chip '+(s==='全冰'?'sel':'')+'" onclick="pickChip(this,\'ice-chips\')">'+ s+'</button>';}).join('')}
+        </div>
+      </div>
+      <button class="btn btn-dk btn-full" onclick="confirmCup()" style="margin-top:8px">✅ 加入購物車</button>
+      <button class="btn btn-out btn-full" onclick="closeCupModal()" style="margin-top:8px">取消</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function pickChip(btn, groupId){
+  document.querySelectorAll('#'+groupId+' .chip').forEach(c=>c.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function confirmCup(){
+  const sugar=document.querySelector('#sugar-chips .chip.sel')?.textContent||'全糖';
+  const ice  =document.querySelector('#ice-chips .chip.sel')?.textContent||'全冰';
+  const cart=S.persons[S.activePerson].cart;
+  if(!cart[_pendingItemIdx]) cart[_pendingItemIdx]=[];
+  cart[_pendingItemIdx].push({sugar,ice});
+  closeCupModal();
+  refreshOItem(_pendingItemIdx);
+  renderCartSummary();
+  updFbar();
+}
+
+function closeCupModal(){
+  const m=document.getElementById('cup-modal');
+  if(m) m.remove();
+}
+
+// 便當：直接加一份
+function addCupDirect(itemIdx){
+  const cart=S.persons[S.activePerson].cart;
+  if(!cart[itemIdx]) cart[itemIdx]=[];
+  cart[itemIdx].push({sugar:'',ice:''});
+  refreshOItem(itemIdx);
+  renderCartSummary();
+  updFbar();
+}
+
+function removeCup(itemIdx){
+  const cart=S.persons[S.activePerson].cart;
+  if(!cart[itemIdx]||!cart[itemIdx].length) return;
+  cart[itemIdx].pop();
+  if(!cart[itemIdx].length) delete cart[itemIdx];
+  refreshOItem(itemIdx);
+  renderCartSummary();
+  updFbar();
+}
+
+function refreshOItem(i){
+  const cart=S.persons[S.activePerson]?.cart||{};
+  const q=(cart[i]||[]).length;
+  const el=document.getElementById('qn-'+i); if(el) el.textContent=q;
+  const card=document.getElementById('oi-'+i); if(card) card.classList.toggle('sel',q>0);
+}
+
+function renderCartSummary(){
+  const el=document.getElementById('cart-summary'); if(!el) return;
+  const cart=S.persons[S.activePerson]?.cart||{};
+  const menu=S.curGroup.menu||[];
+  const isDr=S.type==='drink';
+  const lines=[];
+  Object.entries(cart).forEach(([i,cups])=>{
+    if(!cups.length) return;
+    const item=menu[i];
+    if(!item) return;
+    cups.forEach((cup,ci)=>{
+      const spec=isDr&&cup.sugar?` [${cup.sugar}/${cup.ice}]`:'';
+      lines.push(`${item.name}${spec}`);
+    });
+  });
+  if(!lines.length){ el.innerHTML=''; return; }
+  el.innerHTML=`<div style="background:var(--goldbg);border:1.5px solid var(--gold);border-radius:var(--r2);padding:10px 13px;font-size:.76rem;line-height:1.8">
+    <div style="font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">🛒 已選</div>
+    ${lines.map(function(l){return '<div>• '+l+'</div>';}).join('')}
   </div>`;
-  resultArea.classList.add('visible');
 }
 
-function hideResult() {
-  resultArea.classList.remove('visible');
-  resultArea.innerHTML = '';
+function personCart(){ return S.persons[S.activePerson]?.cart||{}; }
+
+function getCartCount(cart){
+  return Object.values(cart||{}).reduce((s,cups)=>s+(cups?.length||0),0);
 }
 
-// ===== Reset helpers =====
-function resetFrom(level) {
-  if (level === 'model') {
-    modelFilter.innerHTML = '<option value="">— 請先選擇供應商 —</option>';
-    modelFilter.disabled = true;
-    descFilter.innerHTML = '<option value="">— 請先選擇型號 —</option>';
-    descFilter.disabled = true;
+function getCartTotal(cart, menu){
+  return Object.entries(cart||{}).reduce((s,[i,cups])=>s+(menu[i]?.price||0)*(cups?.length||0),0);
+}
+
+function cTotal(){
+  const m=S.curGroup.menu||[];
+  return S.persons.reduce((t,p)=>t+getCartTotal(p.cart,m),0);
+}
+function cCount(){
+  return S.persons.reduce((t,p)=>t+getCartCount(p.cart),0);
+}
+function updFbar(){
+  const n=cCount();
+  document.getElementById('fbar').classList.toggle('on',n>0);
+  const activeCart=personCart();
+  const activeTot=getCartTotal(activeCart,S.curGroup.menu||[]);
+  document.getElementById('fbar-a').textContent=
+    S.persons.length>1
+      ? `本人 NT$${activeTot}｜合計 NT$${cTotal()}`
+      : `NT$${activeTot}`;
+}
+
+// ═══════════════════════════════════════════════
+// CONFIRM & SUBMIT
+// ═══════════════════════════════════════════════
+function goConfirm(){
+  // Save current note
+  const noteEl = document.getElementById('ord-note');
+  if(noteEl) S.persons[S.activePerson].note = noteEl.value;
+
+  // Validate all persons have name and at least one item
+  const valid = S.persons.filter(p=>p.name && Object.values(p.cart||{}).some(cups=>cups?.length>0));
+  if(valid.length===0){ toast('請先選擇姓名並點選品項！'); return; }
+
+  const grp=S.curGroup, menu=grp.menu||[];
+
+  // Build order summary for all persons (new cart: cart[i] = array of cups)
+  const allPersonSummary = S.persons
+    .filter(p=>p.name && Object.values(p.cart||{}).some(cups=>cups?.length>0))
+    .map(p=>{
+      // Flatten cups into items
+      const items=[];
+      Object.entries(p.cart||{}).forEach(([i,cups])=>{
+        if(!cups?.length) return;
+        const m=menu[parseInt(i)]; if(!m) return;
+        // Group identical sugar/ice combos
+        const grouped={};
+        cups.forEach(cup=>{
+          const key=cup.sugar&&cup.ice?`${cup.sugar}/${cup.ice}`:'';
+          grouped[key]=(grouped[key]||0)+1;
+        });
+        Object.entries(grouped).forEach(([spec,qty])=>{
+          const nameFull=spec?`${m.name}（${spec}）`:m.name;
+          items.push({name:nameFull, qty, price:m.price, sub:m.price*qty, spec});
+        });
+      });
+      const total=items.reduce((s,it)=>s+it.sub,0);
+      return {name:p.name, note:p.note||'', items, total};
+    });
+
+  const grandTotal = allPersonSummary.reduce((s,p)=>s+p.total,0);
+  const name = allPersonSummary.map(p=>p.name).join(''); // legacy compat
+  const items = allPersonSummary[0]?.items||[];
+  const total = grandTotal;
+  const note = allPersonSummary[0]?.note||'';
+  // store for submit
+  S._pendingOrders = allPersonSummary;
+
+  // Multi-person confirm UI
+  const orderCards = allPersonSummary.map(p=>`
+    <div class="sc" style="margin-bottom:8px">
+      <div class="sc-hd">👤 ${p.name}</div>
+      ${p.items.map(function(it){return '<div class="sc-row"><span><span class="sc-q">'+it.qty+'×</span>'+it.name+'</span><span class="sc-p">NT$'+it.sub+'</span></div>';}).join('')}
+      ${p.note?`<div class="sc-row"><span>備註</span><span style="font-size:.74rem;color:var(--ink2)">${p.note}</span></div>`:''}
+      <div class="sc-tot"><span>小計</span><span class="sc-ta">NT$${p.total}</span></div>
+    </div>`).join('');
+
+  document.getElementById('cf-wrap').innerHTML=`
+    ${orderCards}
+    ${allPersonSummary.length>1?`<div style="background:var(--bg);border-radius:var(--r2);padding:12px 15px;display:flex;justify-content:space-between;font-weight:900;font-size:1rem;margin-bottom:12px"><span>合計 ${allPersonSummary.length} 人</span><span style="color:#dc2626;font-family:'DM Mono',monospace">NT$${grandTotal}</span></div>`:''}
+    <div class="paybox">
+      <div class="pb-t">💳 付款給團主 ${grp.hostName}</div>
+      <div class="pb-a">NT$${grandTotal}</div>
+      <div class="pb-s">點擊下方按鈕開啟付款 App 完成付款，付款完成後再按「確認送出訂單」，系統會讓你記錄付款方式</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">${payBtns(grp)}</div>
+    </div>
+    <div class="ibox i-ok">✅ 確認金額無誤後送出</div>
+    <button class="btn btn-dk btn-full" onclick="doSubmitAll()">✅ 確認送出所有訂單</button>
+    <button class="btn btn-out btn-full mt8" onclick="go('order')">← 返回修改</button>`;
+  go('s-confirm');
+}
+
+// ── 三種付款方式 deep link 按鈕 ──
+// LINE Pay: 開啟 LINE 錢包頁
+// iPass Money: 開啟一卡通 MONEY (universal link → fallback App Store)
+// 現金: 純資訊
+// 三個付款方式按鈕 — 三狀態流程
+// 狀態 1 (idle):三顆按鈕並排,可點選
+// 狀態 2 (selected):點完一顆 → 該顆高亮 + 其他兩顆灰但仍可點切換 + 下方出現「✅ 確認送出」「↩️ 取消」兩顆按鈕
+// 狀態 3 (committed):確認後 → 只顯示一顆代表選中的方式 + 「↩️ 取消重選」連結
+// pickerName: 全域函式名稱字串,呼叫方式: pickerName(...extraArgs, method)
+function payBtns(grp, pickerName, extraArgs){
+  const argsJson = JSON.stringify(extraArgs||[]);
+  return `
+    <div class="pay-method-group" data-picker="${pickerName}" data-args='${argsJson.replace(/'/g,"&#39;")}' data-state="idle" data-selected="">
+      <div class="pmg-options">
+        <button class="pay-method-btn" data-method="linepay" onclick="selectPayMethod(this,'linepay')" style="display:flex;align-items:center;gap:10px;width:100%;background:#06c755;color:#fff;border:3px solid transparent;border-radius:10px;padding:14px 16px;font-size:.92rem;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(6,199,85,.25);transition:all .2s">
+          <span style="font-size:1.4rem">💚</span>
+          <div style="flex:1;text-align:left">
+            <div>LINE Pay</div>
+            <div class="pmb-sub" style="font-size:.66rem;font-weight:500;opacity:.9;margin-top:1px">點擊選擇</div>
+          </div>
+        </button>
+        <button class="pay-method-btn" data-method="ipass" onclick="selectPayMethod(this,'ipass')" style="display:flex;align-items:center;gap:10px;width:100%;background:#ee7000;color:#fff;border:3px solid transparent;border-radius:10px;padding:14px 16px;font-size:.92rem;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(238,112,0,.25);margin-top:8px;transition:all .2s">
+          <span style="font-size:1.4rem">💳</span>
+          <div style="flex:1;text-align:left">
+            <div>iPass Money</div>
+            <div class="pmb-sub" style="font-size:.66rem;font-weight:500;opacity:.9;margin-top:1px">點擊選擇</div>
+          </div>
+        </button>
+        <button class="pay-method-btn" data-method="cash" onclick="selectPayMethod(this,'cash')" style="display:flex;align-items:center;gap:10px;width:100%;background:#fbbf24;color:#1a1714;border:3px solid transparent;border-radius:10px;padding:14px 16px;font-size:.92rem;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(251,191,36,.25);margin-top:8px;transition:all .2s">
+          <span style="font-size:1.4rem">💵</span>
+          <div style="flex:1;text-align:left">
+            <div>現金</div>
+            <div class="pmb-sub" style="font-size:.66rem;font-weight:500;opacity:.85;margin-top:1px">點擊選擇</div>
+          </div>
+        </button>
+      </div>
+      <div class="pmg-actions" style="display:none;flex-direction:column;gap:8px;margin-top:10px">
+        <button onclick="commitPayMethod(this)" style="width:100%;background:#15803d;color:#fff;border:none;border-radius:10px;padding:13px;font-size:.92rem;font-weight:900;cursor:pointer;font-family:inherit">✅ 確認送出</button>
+        <button onclick="resetPayMethod(this)" style="width:100%;background:transparent;border:1.5px solid var(--bdr2);color:var(--ink2);border-radius:10px;padding:11px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit">↩️ 取消，重新選擇</button>
+      </div>
+    </div>`;
+}
+
+// 共用工具:取得 group 元素
+function _pmGroup(el){ return el.closest('.pay-method-group'); }
+
+// ── 點任一付款按鈕:選擇/切換 ──
+function selectPayMethod(btn, method){
+  const group = _pmGroup(btn);
+  if(!group) return;
+  if(group.dataset.state === 'committed') return; // 已送出不可改
+  group.dataset.state = 'selected';
+  group.dataset.selected = method;
+  const all = group.querySelectorAll('.pay-method-btn');
+  all.forEach(b => {
+    const isSel = (b === btn);
+    b.style.transition = 'all .2s';
+    if(isSel){
+      b.style.border = '3px solid #1a1714';
+      b.style.transform = 'scale(1.03)';
+      b.style.boxShadow = '0 6px 18px rgba(0,0,0,.25)';
+      b.style.opacity = '1';
+      b.style.filter = 'none';
+      const sub = b.querySelector('.pmb-sub');
+      if(sub) sub.textContent = '✓ 已選擇';
+    } else {
+      b.style.border = '3px solid transparent';
+      b.style.transform = 'scale(1)';
+      b.style.boxShadow = 'none';
+      b.style.opacity = '.4';
+      b.style.filter = 'grayscale(.5)';
+      const sub = b.querySelector('.pmb-sub');
+      if(sub) sub.textContent = '點擊改選';
+    }
+  });
+  // 顯示確認/取消區 — 只有存在合法 picker 才顯示 (避免 s-confirm 上的付款按鈕靜默失敗)
+  const _picker = group.dataset.picker;
+  const _hasPicker = _picker && _picker !== 'undefined' && typeof window[_picker] === 'function';
+  const actions = group.querySelector('.pmg-actions');
+  if(actions && _hasPicker) actions.style.display = 'flex';
+}
+
+// ── 取消選擇:回到 idle ──
+function resetPayMethod(triggerBtn){
+  const group = _pmGroup(triggerBtn);
+  if(!group) return;
+  group.dataset.state = 'idle';
+  group.dataset.selected = '';
+  const all = group.querySelectorAll('.pay-method-btn');
+  all.forEach(b => {
+    b.disabled = false;
+    b.style.border = '3px solid transparent';
+    b.style.transform = 'scale(1)';
+    b.style.boxShadow = '';
+    b.style.opacity = '1';
+    b.style.filter = 'none';
+    b.style.cursor = 'pointer';
+    const sub = b.querySelector('.pmb-sub');
+    if(sub) sub.textContent = '點擊選擇';
+  });
+  const actions = group.querySelector('.pmg-actions');
+  if(actions) actions.style.display = 'none';
+}
+
+// ── 確認送出:呼叫 picker → 切到 committed 狀態(只剩選定那顆) ──
+function commitPayMethod(triggerBtn){
+  const group = _pmGroup(triggerBtn);
+  if(!group) return;
+  const method = group.dataset.selected;
+  if(!method) return;
+  const picker = group.dataset.picker;
+  const args = JSON.parse((group.dataset.args||'[]').replace(/&#39;/g,"'"));
+  if(typeof window[picker] !== 'function'){
+    console.error('payment picker not found:', picker);
+    return;
   }
-  if (level === 'desc') {
-    descFilter.innerHTML = '<option value="">— 請先選擇型號 —</option>';
-    descFilter.disabled = true;
+  // 標記成 committed,讓 picker 內部 render committed UI
+  group.dataset.state = 'committed';
+  window[picker](...args, method);
+}
+
+// ── 由 confirm*Payment 內部呼叫:把 group 換成已確認的精簡顯示 ──
+function renderCommittedPayUI(area, method, hostName){
+  const labels = {
+    linepay: { ico:'💚', name:'LINE Pay',  bg:'#06c755', fg:'#fff' },
+    ipass:   { ico:'💳', name:'iPass Money', bg:'#ee7000', fg:'#fff' },
+    cash:    { ico:'💵', name:'現金',      bg:'#fbbf24', fg:'#1a1714' }
+  };
+  const c = labels[method];
+  if(!c) return;
+  area.innerHTML = `
+    <div style="width:100%;background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:16px;text-align:center">
+      <div style="font-size:.72rem;font-weight:900;color:#15803d;letter-spacing:.06em;margin-bottom:8px">✅ 已記錄付款方式</div>
+      <div style="display:inline-flex;align-items:center;gap:10px;background:${c.bg};color:${c.fg};border-radius:10px;padding:14px 22px;font-size:1.05rem;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,.15)">
+        <span style="font-size:1.5rem">${c.ico}</span>
+        <span>${c.name}</span>
+      </div>
+      <div style="font-size:.7rem;color:#166534;margin-top:8px">團主會在訂單清單看到此付款方式</div>
+      <button onclick="undoCommitPay(this)" style="margin-top:10px;background:transparent;border:1.5px solid #86efac;color:#15803d;border-radius:8px;padding:7px 14px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit">↩️ 取消，重新選擇</button>
+    </div>`;
+}
+
+// ── 取消已送出:回到三按鈕選擇狀態 ──
+async function undoCommitPay(btn){
+  // 找到 confirm function 的 idx (從 area parent 推) — 簡化:從目前 active screen 上的 group 重新 render
+  // 用一個全域記錄
+  const ctx = window._lastCommitContext;
+  if(!ctx) return;
+  const grp = S.curGroup;
+  if(!grp) return;
+  // reset 訂單為未付款
+  ctx.idxs.forEach(i => {
+    if(grp.orders[i]){
+      grp.orders[i].paid = false;
+      grp.orders[i].paidMethod = null;
+    }
+  });
+  saveG();
+  // 同步 GAS
+  if(GAS_URL){
+    await Promise.all(ctx.idxs.map(i =>
+      sendGAS({action:'updateOrderPaid', dateKey:S.selDate, type:S.type, groupIdx:S.curGroupIdx, orderIdx:i, paid:false, paidMethod:''})
+    ));
   }
-  hideResult();
+  // 重新渲染按鈕區 (注意 confirmAllPayments 第一個參數是陣列,confirmMyPayment 是 number)
+  const area = document.getElementById('pay-choice-area');
+  if(area){
+    const extraArg = (ctx.picker === 'confirmAllPayments') ? [ctx.idxs] : [ctx.idxs[0]];
+    area.innerHTML = payBtns(grp, ctx.picker, extraArg);
+  }
+  toast('↩️ 已取消，請重新選擇');
 }
 
-function resetAll() {
-  vendorFilter.value = '';
-  vendorFilter.innerHTML = '<option value="">— 請選擇供應商 —</option>';
-  modelFilter.innerHTML = '<option value="">— 請先選擇供應商 —</option>';
-  modelFilter.disabled = true;
-  descFilter.innerHTML = '<option value="">— 請先選擇型號 —</option>';
-  descFilter.disabled = true;
-  selectedShipping = '';
-  selectedShippingCost = 0;
-  document.querySelectorAll('.ship-btn').forEach(b => b.classList.remove('selected'));
-  shippingGrid.innerHTML = '';
-  updateSteps(0);
-  hideResult();
-  loadData();
+async function doSubmitAll(){
+  const pendingOrders = S._pendingOrders || [];
+  if(!pendingOrders.length){ toast('沒有待送出的訂單'); return; }
+
+  const grp = S.curGroup;
+  grp.orders = grp.orders||[];
+  const ts = new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
+  const myOrderIdxs = [];
+
+  const toSend = [];
+  pendingOrders.forEach(p=>{
+    const order={name:p.name, total:p.total, note:p.note, items:p.items, paid:false, ts};
+    grp.orders.push(order);
+    myOrderIdxs.push(grp.orders.length-1);
+    toSend.push(order);
+  });
+  saveG();
+  // 同步到 GAS (等待完成,確保雲端有資料)
+  if(GAS_URL){
+    toast('⏳ 送出訂單中…');
+    await Promise.all(toSend.map(order =>
+      sendGAS({action:'submitOrder',dateKey:S.selDate,type:S.type,groupIdx:S.curGroupIdx,order})
+    ));
+  }
+  renderDoneAll(pendingOrders, myOrderIdxs);
+  go('s-done');
 }
 
-// ===== Step indicator (3 steps now) =====
-function updateSteps(level) {
-  document.getElementById('s1').className = 'step ' + (level >= 1 ? 'done' : 'active');
-  document.getElementById('sl1').className = 'step-line ' + (level >= 1 ? 'done' : '');
-  document.getElementById('s2').className = 'step ' + (level >= 2 ? 'done' : level >= 1 ? 'active' : '');
-  document.getElementById('sl2').className = 'step-line ' + (level >= 2 ? 'done' : '');
-  document.getElementById('s3').className = 'step ' + (level >= 3 ? 'done' : level >= 2 ? 'active' : '');
+function renderDoneAll(pendingOrders, myOrderIdxs){
+  const grp=S.curGroup;
+  const grandTotal=pendingOrders.reduce((s,p)=>s+p.total,0);
+  const receiptCards = pendingOrders.map((p,pi)=>`
+    <div class="sc" style="margin-bottom:8px">
+      <div class="sc-hd">📄 ${p.name} 的收據</div>
+      ${p.items.map(function(it){return '<div class="sc-row"><span>'+it.name+'×'+it.qty+'</span><span class="sc-p">NT$'+it.sub+'</span></div>';}).join('')}
+      ${p.note?`<div class="sc-row"><span>備註</span><span>${p.note}</span></div>`:''}
+      <div class="sc-tot"><span>小計</span><span class="sc-ta">NT$${p.total}</span></div>
+    </div>`).join('');
+
+  document.getElementById('dn-wrap').innerHTML=`
+    <div class="done-h">
+      <div class="done-ico">🎉</div>
+      <div class="done-t">訂單送出！</div>
+      <div class="done-s">${pendingOrders.length>1?`共 ${pendingOrders.length} 人，合計 NT$${grandTotal}`:'付款完成後請確認'}</div>
+    </div>
+    ${receiptCards}
+    <div class="paybox">
+      <div class="pb-t">💳 請選擇付款方式</div>
+      <div class="pb-a">NT$${grandTotal}</div>
+      <div class="pb-s">點選後系統會記錄你的付款方式，讓團主知道如何收款</div>
+      <div id="pay-choice-area" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:10px">${payBtns(grp,'confirmAllPayments',[myOrderIdxs])}</div>
+    </div>
+    <button class="btn btn-out btn-full" style="margin-bottom:8px" onclick="openGroupDetail('${S.type}')">
+      📋 查看今日訂單清單
+    </button>
+    <button class="btn btn-dk btn-full" onclick="resetAndGoHome()">← 回首頁</button>`;
 }
 
-function num(v) {
-  if (v == null || v === '') return '—';
-  return Number(v).toLocaleString('zh-TW', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+async function confirmAllPayments(idxs, method){
+  if(!method) return;
+  const grp=S.curGroup;
+  (idxs||[]).forEach(i=>{
+    if(grp.orders[i]){
+      grp.orders[i].paid=true;
+      grp.orders[i].paidMethod=method;
+    }
+  });
+  saveG();
+  if(GAS_URL){
+    await Promise.all((idxs||[]).map(i =>
+      sendGAS({action:'updateOrderPaid', dateKey:S.selDate, type:S.type, groupIdx:S.curGroupIdx, orderIdx:i, paid:true, paidMethod:method})
+    ));
+  }
+  // 記錄 undo context
+  window._lastCommitContext = { picker:'confirmAllPayments', idxs:[...(idxs||[])] };
+  // 切換 UI 到 committed 狀態
+  const area = document.getElementById('pay-choice-area');
+  if(area) renderCommittedPayUI(area, method, grp.hostName);
+  toast('✅ 付款方式已記錄 ('+payMethodLabel(method)+')');
 }
 
-// ===== 啟動 =====
-loadData();
+// ── 付款方式選擇 modal ──
+function payMethodLabel(m){
+  return m==='linepay'?'LINE Pay':m==='ipass'?'iPass Money':m==='cash'?'現金':'';
+}
+function pickPayMethodModal(cb){
+  const existing=document.getElementById('pm-modal');
+  if(existing) existing.remove();
+  const m=document.createElement('div');
+  m.id='pm-modal';
+  m.className='cf-modal';
+  m.innerHTML=`
+    <div class="cf-sheet" style="max-width:340px">
+      <div class="cf-title">💰 你用哪種方式付款?</div>
+      <div class="cf-msg">請選擇實際使用的付款方式，會記錄到訂單清單</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+        <button id="pm-linepay" style="display:flex;align-items:center;gap:10px;background:#06c755;color:#fff;border:none;border-radius:10px;padding:13px 16px;font-size:.92rem;font-weight:900;cursor:pointer;font-family:'Noto Sans TC',sans-serif;text-align:left">
+          <span style="font-size:1.4rem">💚</span><span style="flex:1">LINE Pay</span><span>›</span>
+        </button>
+        <button id="pm-ipass" style="display:flex;align-items:center;gap:10px;background:#ee7000;color:#fff;border:none;border-radius:10px;padding:13px 16px;font-size:.92rem;font-weight:900;cursor:pointer;font-family:'Noto Sans TC',sans-serif;text-align:left">
+          <span style="font-size:1.4rem">💳</span><span style="flex:1">iPass Money</span><span>›</span>
+        </button>
+        <button id="pm-cash" style="display:flex;align-items:center;gap:10px;background:#fbbf24;color:#1a1714;border:none;border-radius:10px;padding:13px 16px;font-size:.92rem;font-weight:900;cursor:pointer;font-family:'Noto Sans TC',sans-serif;text-align:left">
+          <span style="font-size:1.4rem">💵</span><span style="flex:1">現金</span><span>›</span>
+        </button>
+        <button id="pm-cancel" style="background:transparent;border:none;color:var(--ink3);padding:8px;font-size:.78rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif">取消</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+  function close(){ m.remove(); }
+  document.getElementById('pm-linepay').onclick=()=>{close();cb('linepay');};
+  document.getElementById('pm-ipass').onclick=()=>{close();cb('ipass');};
+  document.getElementById('pm-cash').onclick=()=>{close();cb('cash');};
+  document.getElementById('pm-cancel').onclick=close;
+}
+
+function resetAndGoHome(){
+  S.persons=[]; S.activePerson=0; S._pendingOrders=[];
+  go('land'); renderGrid();
+}
+
+// ── 修改訂單功能 ──
+function startEditOrder(orderIdx){
+  S.editingOrderIdx = orderIdx;
+  const order = S.curGroup.orders[orderIdx];
+  if(!order) return;
+  // Reconstruct cart from order items
+  const menu = S.curGroup.menu||[];
+  const cart={};
+  order.items.forEach(oi=>{
+    const menuIdx = menu.findIndex(m=>m.name===oi.name);
+    if(menuIdx>=0) cart[menuIdx]=oi.qty;
+  });
+  S.persons=[{name:order.name, cart, note:order.note||''}];
+  S.activePerson=0;
+  go('order');
+  renderEditOrder();
+}
+
+function renderEditOrder(){
+  const grp=S.curGroup, isDr=S.type==='drink';
+  const order=grp.orders[S.editingOrderIdx];
+  document.getElementById('ord-t').textContent='✏️ 修改訂單';
+  document.getElementById('ord-s').textContent=`${order?.name} — ${grp.shopName}`;
+  const menu=grp.menu||[];
+  const cart=S.persons[0]?.cart||{};
+  document.getElementById('ord-wrap').innerHTML=`
+    <div class="edit-order-card">
+      <div style="font-size:.72rem;font-weight:700;color:var(--gold);margin-bottom:4px">✏️ 修改 ${order?.name} 的訂單</div>
+      <div style="font-size:.76rem;color:var(--ink2)">重新選擇品項後按確認更新</div>
+    </div>
+    <div class="sect">重新選擇品項</div>
+    <div class="olist" id="olist"></div>
+    <div class="sect">備註</div>
+    <textarea class="fin" style="padding-left:14px;resize:none;height:48px" id="ord-note"
+      placeholder="特殊需求…">${order?.note||''}</textarea>
+    <button class="btn btn-gold btn-full mt12" onclick="saveEditOrder()">💾 確認更新訂單</button>
+    <button class="btn btn-out btn-full mt8" onclick="cancelEdit()">取消</button>
+  `;
+  renderOList();
+}
+
+function saveEditOrder(){
+  const idx=S.editingOrderIdx;
+  const grp=S.curGroup, menu=grp.menu||[];
+  const cart=S.persons[0]?.cart||{};
+  const note=document.getElementById('ord-note')?.value||'';
+  const items=[];
+  Object.entries(cart).forEach(([i,cups])=>{
+    if(!cups?.length) return;
+    const m=menu[parseInt(i)]; if(!m) return;
+    const grouped={};
+    cups.forEach(cup=>{ const k=cup.sugar&&cup.ice?`${cup.sugar}/${cup.ice}`:''; grouped[k]=(grouped[k]||0)+1; });
+    Object.entries(grouped).forEach(([spec,qty])=>{
+      items.push({name:spec?`${m.name}（${spec}）`:m.name, qty, price:m.price, sub:m.price*qty});
+    });
+  });
+  if(!items.length){toast('請至少選一個品項');return;}
+  const total=items.reduce((s,it)=>s+it.sub,0);
+  grp.orders[idx]={...grp.orders[idx],items,total,note,editedAt:new Date().toLocaleString('zh-TW')};
+  saveG();
+  S.editingOrderIdx=-1; S.persons=[];
+  toast('✅ 訂單已更新！');
+  renderGroupDetail(); go('s-group');
+}
+
+function cancelEdit(){
+  S.editingOrderIdx=-1; S.persons=[];
+  renderGroupDetail(); go('s-group');
+}
+
+// ── legacy doSubmit（保留向後相容）──
+async function doSubmit(name,total,note,items){
+  const order={name,total,note,items,ts:new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})};
+  S.curGroup.orders=S.curGroup.orders||[];
+  S.curGroup.orders.push(order);
+  saveG();
+  sendGAS({action:'submitOrder',dateKey:S.selDate,type:S.type,order});
+  const myOrderIdx = (S.curGroup.orders||[]).length - 1;
+
+  document.getElementById('dn-wrap').innerHTML=`
+    <div class="done-h">
+      <div class="done-ico">🎉</div>
+      <div class="done-t">訂單送出！</div>
+      <div class="done-s">付款完成後請按下方按鈕確認</div>
+    </div>
+    <div class="sc">
+      <div class="sc-hd">📄 訂單收據</div>
+      <div class="sc-row"><span>姓名</span><span style="font-weight:700">${name}</span></div>
+      ${items.map(function(it){return '<div class="sc-row"><span>'+it.name+'×'+it.qty+'</span><span class="sc-p">NT$'+it.sub+'</span></div>';}).join('')}
+      ${note?`<div class="sc-row"><span>備註</span><span>${note}</span></div>`:''}
+      <div class="sc-tot"><span>合計</span><span class="sc-ta">NT$${total}</span></div>
+    </div>
+
+    <div class="paybox">
+      <div class="pb-t">💳 請選擇付款方式</div>
+      <div class="pb-a">NT$${total}</div>
+      <div class="pb-s">點選後系統會記錄你的付款方式，讓團主知道如何收款</div>
+      <div id="pay-choice-area" style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:10px">${payBtns(S.curGroup,'confirmMyPayment',[myOrderIdx])}</div>
+    </div>
+
+    <button class="btn btn-out btn-full" style="margin-bottom:8px" onclick="openGroupDetail('${S.type}');renderGrid()">
+      📋 查看今日訂單清單
+    </button>
+    <button class="btn btn-dk btn-full" onclick="go('land');renderGrid()">← 回首頁</button>`;
+  go('s-done');
+}
+
+// ═══════════════════════════════════════════════
+// CONFIRM MY PAYMENT（同學自己確認付款）
+// ═══════════════════════════════════════════════
+async function confirmMyPayment(idx, method){
+  const grp = S.curGroup;
+  if(!grp || !grp.orders || !grp.orders[idx] || !method) return;
+  grp.orders[idx].paid = true;
+  grp.orders[idx].paidMethod = method;
+  saveG();
+  if(GAS_URL){
+    await sendGAS({action:'updateOrderPaid', dateKey:S.selDate, type:S.type, groupIdx:S.curGroupIdx, orderIdx:idx, paid:true, paidMethod:method});
+  }
+  window._lastCommitContext = { picker:'confirmMyPayment', idxs:[idx] };
+  const area = document.getElementById('pay-choice-area');
+  if(area) renderCommittedPayUI(area, method, grp.hostName);
+  toast('✅ 付款方式已記錄 ('+payMethodLabel(method)+')');
+}
+
+// ═══════════════════════════════════════════════
+// GAS
+// ═══════════════════════════════════════════════
+// 寫入 GAS:使用 text/plain 避免 CORS preflight,awaitable
+async function sendGAS(p){
+  if(!GAS_URL) return {success:false,error:'no GAS_URL'};
+  // 記錄最後一次寫入時間,讓 polling 暫緩避免覆蓋本地
+  S._lastWriteAt = Date.now();
+  try{
+    const r = await fetch(GAS_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(p)
+    });
+    if(!r.ok) return {success:false,error:'HTTP '+r.status};
+    return await r.json();
+  }catch(e){
+    console.warn('sendGAS failed:', e.message);
+    return {success:false, error:e.message};
+  }
+}
+// ★ 從 GAS 讀取最新店家菜單（背景執行）
+async function syncMenus(){
+  if(!GAS_URL) return;
+  try{
+    const r = await fetch(GAS_URL+'?action=getMenus');
+    const d = await r.json();
+    if(d.success){
+      S.remoteMenus = { drinks: d.drinks||[], foods: d.foods||[] };
+      localStorage.setItem('remote_menus', JSON.stringify(S.remoteMenus));
+    }
+  }catch(e){ console.warn('syncMenus failed:', e.message); }
+}
+
+// 取得目前有效的店家列表（優先用 GAS，否則用內建）
+function getShopList(type){
+  const isDr = type==='drink';
+  if(S.remoteMenus){
+    const list = isDr ? S.remoteMenus.drinks : S.remoteMenus.foods;
+    if(list && list.length > 0) return list;
+  }
+  return isDr ? DRINK_LIST : FOOD_LIST;
+}
+
+async function syncGAS(){
+  // 剛寫入 GAS 後 5 秒內不拉,避免覆蓋還沒同步到遠端的本地資料
+  if(S._lastWriteAt && (Date.now()-S._lastWriteAt) < 5000) return;
+  try{
+    const r=await fetch(GAS_URL+'?action=getGroups&_t='+Date.now());
+    const d=await r.json();
+    if(!(d.success && d.groups)) return;
+    // 先正規化:舊格式 {type:grp} 轉新格式 {type:[grp]}
+    const remote = d.groups;
+    Object.keys(remote).forEach(date=>{
+      Object.keys(remote[date]).forEach(type=>{
+        if(!Array.isArray(remote[date][type])) remote[date][type]=[remote[date][type]];
+      });
+    });
+    // 深度合併:
+    // - 遠端有的團,用遠端版本(含最新訂單/付款狀態)
+    // - 本地獨有的團(剛建但遠端還沒回來),保留
+    // - 同一團內的 orders,以遠端為主,再補上本地獨有的 (用 name+ts 作 key)
+    const local = S.groups || {};
+    const out = {};
+    const allDates = new Set([...Object.keys(local), ...Object.keys(remote)]);
+    allDates.forEach(date=>{
+      out[date] = {};
+      const localDay = local[date] || {};
+      const remoteDay = remote[date] || {};
+      const allTypes = new Set([...Object.keys(localDay), ...Object.keys(remoteDay)]);
+      allTypes.forEach(type=>{
+        const localArr = Array.isArray(localDay[type]) ? localDay[type] : (localDay[type] ? [localDay[type]] : []);
+        const remoteArr = remoteDay[type] || [];
+        const maxLen = Math.max(localArr.length, remoteArr.length);
+        const merged = [];
+        for(let i=0;i<maxLen;i++){
+          const L = localArr[i], R = remoteArr[i];
+          if(L && R){
+            // 合併 orders
+            const lo = L.orders||[], ro = R.orders||[];
+            const seen = new Set();
+            const mergedOrders = [];
+            ro.forEach(o=>{ const k=(o.name||'')+'|'+(o.ts||''); seen.add(k); mergedOrders.push(o); });
+            lo.forEach(o=>{ const k=(o.name||'')+'|'+(o.ts||''); if(!seen.has(k)) mergedOrders.push(o); });
+            merged.push({...R, orders: mergedOrders});
+          } else if(R){
+            merged.push(R);
+          } else if(L){
+            merged.push(L);
+          }
+        }
+        if(merged.length) out[date][type] = merged;
+      });
+      if(!Object.keys(out[date]).length) delete out[date];
+    });
+    S.groups = out;
+    saveG();
+    rerenderCurrentScreen();
+  }catch(e){ console.warn('syncGAS failed:', e.message); }
+}
+
+// ── 判斷目前在哪個畫面,呼叫對應 render 函式 ──
+function rerenderCurrentScreen(){
+  const active = document.querySelector('.scr.on');
+  if(!active) return;
+  const id = active.id;
+  try{
+    if(id==='s-land') renderGrid();
+    else if(id==='s-day') { if(typeof renderDay==='function') renderDay(); }
+    else if(id==='s-group'){
+      // 訂單清單畫面 — 同步團組資料後重新渲染
+      if(S.curGroup && S.selDate && S.type){
+        const grps = S.groups[S.selDate]?.[S.type];
+        if(Array.isArray(grps) && grps[S.curGroupIdx]){
+          S.curGroup = grps[S.curGroupIdx];
+          if(typeof renderGroupDetail==='function') renderGroupDetail();
+        }
+      }
+    }
+    // 其他畫面 (點餐中、完成頁) 不自動重繪避免干擾輸入
+  }catch(e){ console.warn('rerender failed:', e.message); }
+}
+
+// ── 自動輪詢:每 8 秒拉一次遠端資料 (只有 tab 可見時) ──
+let _syncTimer = null;
+function startSyncPolling(){
+  if(_syncTimer) clearInterval(_syncTimer);
+  _syncTimer = setInterval(()=>{
+    if(document.visibilityState==='visible' && GAS_URL){
+      syncGAS();
+    }
+  }, 8000);
+}
+document.addEventListener('visibilitychange', ()=>{
+  // 回到 tab 時立刻同步一次
+  if(document.visibilityState==='visible' && GAS_URL) syncGAS();
+});
+
+// ═══════════════════════════════════════════════
+// 精選店家列表
+// ═══════════════════════════════════════════════
+function goPresets(){
+  const isDr = S.type==='drink';
+  const list  = getShopList(S.type);
+  const count = list.length;
+  const mgr = !!S.presetsManage;
+
+  document.getElementById('ps-title').textContent =
+    isDr ? '🧋 精選飲料店（'+count+'間）' : '🍱 精選便當餐廳（'+count+'間）';
+  document.getElementById('ps-sub').textContent = mgr ? '⚙️ 管理模式：可重新命名或刪除店家' : '含地址、電話、完整菜單';
+
+  const wrap = document.getElementById('ps-wrap');
+  let html = '';
+  // 管理模式切換
+  html += '<button onclick="togglePresetsManage()" style="width:100%;padding:11px;border-radius:9px;border:2px solid '+(mgr?'#dc2626':'var(--bdr2)')+';background:'+(mgr?'#fef2f2':'var(--sur)')+';color:'+(mgr?'#dc2626':'var(--ink)')+';font-size:.82rem;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit">'+(mgr?'✓ 完成管理，返回正常模式':'⚙️ 進入管理模式（重命名/刪除店家）')+'</button>';
+
+  list.forEach(function(shop, idx){
+    const mapUrl = 'https://maps.google.com/?q=' + encodeURIComponent((shop.addr||shop.name)+' 台南');
+    const telHref = 'tel:' + (shop.tel||'').replace(/-/g,'');
+
+    // Build menu rows
+    let menuHtml = '';
+    if(shop.menu && shop.menu.length > 0){
+      let rows = '';
+      shop.menu.forEach(function(item){
+        rows += '<div class="pshop-menu-item">'
+          + '<span>' + item.name + (item.cat ? ' <span class="pshop-menu-cat">'+item.cat+'</span>' : '') + '</span>'
+          + '<span class="pshop-menu-price">NT$' + item.price + '</span>'
+          + '</div>';
+      });
+      menuHtml = '<div style="font-size:.72rem;font-weight:700;color:var(--ink2);padding:6px 0;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="var n=this.nextElementSibling;n.style.display=n.style.display===\'block\'?\'none\':\'block\';this.querySelector(\'span:last-child\').textContent=n.style.display===\'block\'?\'收合 ‹\':\'展開 ›\'">'
+        + '<span>📋 菜單（' + shop.menu.length + ' 項）</span>'
+        + '<span style="font-size:.8rem">展開 ›</span>'
+        + '</div>'
+        + '<div style="display:none">' + rows + '</div>';
+    } else {
+      menuHtml = '<div style="font-size:.74rem;color:var(--ink3);padding:4px 0">（尚無品項）</div>';
+    }
+
+    html += '<div class="pshop-card" id="psc-' + idx + '">'
+      + '<div class="pshop-hd" onclick="togglePresetCard(' + idx + ')">'
+      +   '<span class="pshop-ico">' + (shop.icon||'🏪') + '</span>'
+      +   '<div class="pshop-info">'
+      +     '<div class="pshop-nm">' + shop.name + '</div>'
+      +     '<a class="pshop-addr" href="' + mapUrl + '" target="_blank" onclick="event.stopPropagation()" style="text-decoration:none;color:inherit;display:block">📍 ' + (shop.addr||'') + '</a>'
+      +     '<a class="pshop-tel" href="' + telHref + '" onclick="event.stopPropagation()" style="text-decoration:none;display:block">📞 ' + (shop.tel||'—') + '</a>'
+      +   '</div>'
+      +   '<span class="pshop-arrow">›</span>'
+      + '</div>'
+      + '<div class="pshop-body">'
+      +   (mgr
+          ? '<div style="display:flex;gap:8px;margin-bottom:8px">'
+            + '<button onclick="renamePresetShop(' + idx + ')" style="flex:1;padding:11px;border-radius:9px;border:2px solid #fbbf24;background:#fffbeb;color:#92400e;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit">✏️ 重新命名</button>'
+            + '<button onclick="deletePresetShop(' + idx + ')" style="flex:1;padding:11px;border-radius:9px;border:2px solid #dc2626;background:#fef2f2;color:#dc2626;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit">🗑 刪除店家</button>'
+            + '</div>'
+          : '<button class="pshop-select" onclick="pickPresetShop(' + idx + ')">✅ 選擇此店家開始開團</button>')
+      +   menuHtml
+      + '</div>'
+      + '</div>';
+  });
+
+  wrap.innerHTML = html;
+  go('s-presets');
+}
+
+
+function togglePresetCard(idx){
+  const card = document.getElementById('psc-'+idx);
+  if(card) card.classList.toggle('open');
+}
+
+function pickPresetShop(idx){
+  const list = getShopList(S.type);
+  const shop = list[idx];
+  S.shopSel = shop;
+  S.aiMenu = (shop.menu||[]).map(m=>({name:m.name,price:m.price,cat:m.cat||''}));
+  S.hostName=''; S.payMethod=null; S.payLink=''; S.ipassLink=''; S.payQr=null; S.announcement='';
+  S.setupStep=1;
+  renderSetup();
+  go('s-setup');
+}
+
+// ═══════════════════════════════════════════════
+// PDF 匯出（browser print）
+// ═══════════════════════════════════════════════
+function exportPDF(){
+  const grp = S.curGroup;
+  if(!grp){ toast('找不到團資料'); return; }
+
+  const isDr = S.type==='drink';
+  const orders = grp.orders||[];
+  const total = orders.reduce((s,o)=>s+(o.total||0),0);
+  const paidAmt = orders.filter(o=>o.paid).reduce((s,o)=>s+(o.total||0),0);
+  const ts = new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
+  const tel = S.shopSel?.tel || grp.shopTel || '';
+  const addr = grp.shopAddr || '';
+  const mapUrl = 'https://maps.google.com/?q=' + encodeURIComponent(addr + ' 台南');
+
+  const orderRows = orders.map(o=>{
+    const pmIco = o.paidMethod==='linepay'?'💚 LINE Pay':o.paidMethod==='ipass'?'💳 iPass Money':o.paidMethod==='cash'?'💵 現金':'—';
+    return `
+    <tr>
+      <td style="padding:9px 12px;border:1px solid #ddd;font-weight:700">${o.name}</td>
+      <td style="padding:9px 12px;border:1px solid #ddd;text-align:center">${pmIco}</td>
+      <td style="padding:9px 12px;border:1px solid #ddd;text-align:right;font-weight:700;color:#dc2626">NT$${o.total}</td>
+    </tr>`;}).join('');
+
+  // Build HTML as string (no template literal nesting)
+  let html = '<div id="pdfview" style="font-family:\'Noto Sans TC\',sans-serif;background:#fff;color:#111;padding:0;max-width:100%;position:fixed;inset:0;z-index:9999;overflow-y:auto">';
+
+  // Top bar (hidden on print)
+  html += '<div class="no-print" style="background:#1a1714;color:#fbbf24;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10">';
+  html += '<button onclick="document.getElementById(\'pdfview\').remove()" style="background:rgba(255,255,255,.15);color:#f5f0e8;border:none;border-radius:7px;padding:8px 12px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:sans-serif">← 返回</button>';
+  html += '<span style="font-size:.85rem;font-weight:700">EMBA E118 訂單</span>';
+  html += '<button onclick="window.print()" style="background:#fbbf24;color:#1a1714;border:none;border-radius:7px;padding:8px 16px;font-size:.84rem;font-weight:900;cursor:pointer;font-family:sans-serif">列印/PDF</button>';
+  html += '</div>';
+
+  // Content
+  html += '<div style="padding:20px;max-width:700px;margin:0 auto">';
+
+  // Header
+  html += '<div style="display:flex;align-items:center;gap:12px;border-bottom:3px solid #1a1714;padding-bottom:14px;margin-bottom:18px">';
+  html += '<div style="background:#1a1714;color:#fbbf24;padding:8px 14px;border-radius:8px;font-size:.78rem;font-weight:700">EMBA E118</div>';
+  html += '<div><div style="font-size:1.2rem;font-weight:900">' + (isDr?'🧋 飲料':'🍱 便當') + '團訂單</div>';
+  html += '<div style="font-size:.73rem;color:#666;margin-top:2px">列印：' + ts + '</div></div></div>';
+
+  // Shop info table (店家資訊 + 地址/電話可點)
+  html += '<table style="width:100%;border-collapse:collapse;margin-bottom:18px;font-size:.84rem">';
+  html += '<tr style="background:#f5f5f5"><td style="padding:7px 10px;border:1px solid #ddd;font-weight:700;width:70px">店家</td><td style="padding:7px 10px;border:1px solid #ddd">' + (grp.shopIcon||'') + ' ' + grp.shopName + '</td>';
+  html += '<td style="padding:7px 10px;border:1px solid #ddd;font-weight:700;width:55px">團主</td><td style="padding:7px 10px;border:1px solid #ddd">' + grp.hostName + '</td></tr>';
+  html += '<tr><td style="padding:7px 10px;border:1px solid #ddd;font-weight:700">地址</td><td style="padding:7px 10px;border:1px solid #ddd"><a href="' + mapUrl + '" style="color:#1d4ed8;text-decoration:none">📍 ' + (addr||'—') + '</a></td>';
+  html += '<td style="padding:7px 10px;border:1px solid #ddd;font-weight:700">電話</td><td style="padding:7px 10px;border:1px solid #ddd">' + (tel ? '<a href="tel:' + tel.replace(/-/g,'') + '" style="color:#15803d;text-decoration:none;font-weight:700">📞 ' + tel + '</a>' : '—') + '</td></tr>';
+  html += '<tr style="background:#f5f5f5"><td style="padding:7px 10px;border:1px solid #ddd;font-weight:700">日期</td><td colspan="3" style="padding:7px 10px;border:1px solid #ddd">' + S.selDate + '</td></tr>';
+  if(grp.announcement) html += '<tr><td colspan="4" style="padding:7px 10px;border:1px solid #ddd"><b>📢</b> ' + grp.announcement + '</td></tr>';
+  html += '</table>';
+
+  // Orders table — 只顯示 姓名 / 付款方式 / 總金額
+  html += '<div style="font-size:.88rem;font-weight:700;margin-bottom:8px;border-left:4px solid #1a1714;padding-left:10px">訂單明細（共 ' + orders.length + ' 人）</div>';
+  html += '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:.86rem">';
+  html += '<thead><tr style="background:#1a1714;color:#fbbf24"><th style="padding:9px 12px;border:1px solid #333;text-align:left">姓名</th><th style="padding:9px 12px;border:1px solid #333;text-align:center">付款方式</th><th style="padding:9px 12px;border:1px solid #333;text-align:right">總金額</th></tr></thead>';
+  html += '<tbody>' + orderRows + '</tbody>';
+  html += '<tfoot><tr style="background:#f5f5f5;font-weight:900"><td style="padding:9px 12px;border:1px solid #ddd">合計</td><td style="padding:9px 12px;border:1px solid #ddd;text-align:center;font-size:.78rem">已收 NT$' + paidAmt + '</td><td style="padding:9px 12px;border:1px solid #ddd;text-align:right;color:#dc2626;font-size:1rem">NT$' + total + '</td></tr></tfoot></table>';
+
+  html += '<div style="text-align:center;font-size:.7rem;color:#999;border-top:1px solid #eee;padding-top:10px">EMBA E118 共學團點餐系統　' + ts + '</div>';
+  html += '</div></div>';
+
+  // Add print CSS
+  html += '<style>@media print{.no-print{display:none!important} body{margin:0} #pdfview{position:static!important;overflow:visible!important}}</style>';
+
+  // Inject directly into body
+  const existing = document.getElementById('pdfview');
+  if(existing) existing.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
+  window.scrollTo(0,0);
+}
+
+
+// ═══════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════
+function go(name){
+  const ids={'land':'s-land','day':'s-day','shop':'s-shop','presets':'s-presets','s-presets':'s-presets','setup':'s-setup','order':'s-order','confirm':'s-confirm','done':'s-done','group':'s-group','s-group':'s-group'};
+  const target=ids[name]||name;
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.getElementById(target)?.classList.add('on');
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+let _tt;
+function toast(m){ const el=document.getElementById('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('on'),2600); }
+
+init();
 </script>
 </body>
 </html>
